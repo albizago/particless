@@ -15,9 +15,9 @@ double ParticleType::getMass() const { return fMass; }
 int ParticleType::getCharge() const { return fCharge; }
 
 void ParticleType::Print() const {
-  std::cout << " PARTICLE DATA \n\n -------------- \n\n"
-            << " Name: " << fName << "\n Mass:" << fMass
-            << "\n Charge: " << fCharge << "\n ";
+  std::cout << "\n PARTICLE DATA \n\n -------------- \n\n"
+            << " Name: " << std::setw(8) << fName << "\n Mass: " << std::setw(8) << fMass
+            << "\n Charge: " << std::setw(6) << fCharge << '\n';
 }
 
 }  // namespace pt
