@@ -1,9 +1,9 @@
 #ifndef PARTICLETYPE_HPP
 #define PARTICLETYPE_HPP
 
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
-#include <iomanip>
 
 namespace pt {
 
@@ -11,9 +11,11 @@ class ParticleType {
  public:
   ParticleType(char*, double, int);
   ParticleType() = default;
-  const char* getName() const;
-  double getMass() const;
-  int getCharge() const;
+
+  const char* GetName() const;
+  double GetMass() const;
+  int GetCharge() const;
+
   virtual void Print() const;
 
  private:
