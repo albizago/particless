@@ -22,7 +22,7 @@ class Particle {
   Particle(char* name, Impulse P);
   const int GetIndex() const;
   static void AddParticleType(char* name, double mass, int charge,
-                              double width);
+                              double width = 0.);
   void SetIndex(int index);
   void SetIndex(char* name);
 
@@ -37,7 +37,7 @@ class Particle {
   double GetEnergy() const;
 
   double InvMass(Particle& p) const;
-  
+
   void SetP(double px, double py, double pz);
   void SetP(Impulse const& p);
 

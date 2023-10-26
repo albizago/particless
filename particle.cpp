@@ -40,6 +40,8 @@ void Particle::AddParticleType(char* name, double mass, int charge,
                         new ResonanceType(name, mass, charge, width);
 
     ++fNParticleType;
+  } else {
+    std::cout << " Particle already exists \n";
   }
 };
 
