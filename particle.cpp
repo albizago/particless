@@ -3,14 +3,17 @@
 const int pt::Particle::fMaxNumParticleType = 10;
 int pt::Particle::fNParticleType = 0;
 
-pt::Particle::Particle(char* name, Impulse P) : fIndex(FindParticle(name)), fP(P) {}
+pt::Particle::Particle(char* name, Impulse P)
+    : fIndex(FindParticle(name)), fP(P) {
+  if (fIndex == -1) throw std::runtime_error("Particle not found");
+  ++fNParticleType;
+}
 
-
-const int pt::Particle::FindParticle(char* name) const {
+int pt::Particle::FindParticle(char* name) {
   int i{0};
 
-  for (;i < fMaxNumParticleType; ++i) {
-    if (fParticleType[i].getName() == name) {
+  for (; i < fMaxNumParticleType; ++i) {
+    if (fParticleType[i]->getName() == name) {
       break;
     }
   }
@@ -18,15 +21,16 @@ const int pt::Particle::FindParticle(char* name) const {
   if (i != fMaxNumParticleType) {
     return i;
   } else {
-    throw std::runtime_error("Particle not found");
+    std::cout << "Particle not found \n";
+    return -1;
   }
 }
 
+const int pt::Particle::getIndex() const { return fIndex; }
 
-const int pt::Particle::getIndex() const {
-  return fIndex;
-}
-
-static void AddParticleType(char* name, double mass, int charge,
-                              double lenght);
-
+void pt::Particle::AddParticleType(char* name, double mass, int charge,
+                                   double lenght) {
+  if (FindParticle(name) == -1 && fNParticleType < fMaxNumParticleType) 
+  
+  fParticleType[]
+  }

@@ -21,13 +21,13 @@ class Particle {
   void setIndex(char* name);
 
  private:
-  static ParticleType* fParticleType;
+  static ParticleType** fParticleType;
   static const int fMaxNumParticleType;
   static int fNParticleType;
   const int fIndex;
   Impulse fP;
 
-  const int FindParticle(char* name) const;
+  static int FindParticle(char* name) ;
 };
 
 }  // namespace pt
