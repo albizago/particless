@@ -14,7 +14,7 @@ class ParticleType {
  public:
   ParticleType(char*, double, int);
   ParticleType() = default;
-  char* const& getName() const;
+  const char* getName() const;
   double getMass() const;
   int getCharge() const;
   virtual void Print() const;
