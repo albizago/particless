@@ -19,9 +19,12 @@ class Particle {
                               double lenght);
   void setIndex(int index);
   void setIndex(char* name);
+  static void PrintParticleTypes();
+
+  void Print() const;
 
  private:
-  static ParticleType* fParticleType;
+  static ParticleType** fParticleType;
   static const int fMaxNumParticleType;
   static int fNParticleType;
   const int fIndex;
