@@ -2,6 +2,7 @@
 #define PARTICLE_HPP
 
 #include "particleType.hpp"
+#include "resonanceType.hpp"
 
 struct Impulse {
   double fPx{0};
@@ -16,7 +17,7 @@ class Particle {
   Particle(char* name, Impulse P);
   const int getIndex() const;
   static void AddParticleType(char* name, double mass, int charge,
-                              double lenght);
+                              double width);
   void setIndex(int index);
   void setIndex(char* name);
   static void PrintParticleTypes();
@@ -24,13 +25,13 @@ class Particle {
   void Print() const;
 
  private:
-  static ParticleType** fParticleType;
-  static const int fMaxNumParticleType;
+  static const int fMaxNumParticleType = 10;
+  static ParticleType* fParticleType[fMaxNumParticleType];
   static int fNParticleType;
   const int fIndex;
   Impulse fP;
 
-  const int FindParticle(char* name) const;
+  static int FindParticle(char* name);
 };
 
 }  // namespace pt
