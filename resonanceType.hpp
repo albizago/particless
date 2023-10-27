@@ -4,14 +4,18 @@
 #include "particleType.hpp"
 
 namespace pt {
+
 class ResonanceType : public ParticleType {
  public:
   ResonanceType(char*, double, int, double);
   ResonanceType() = default;
-  double getWidth() const;
+
+  double GetWidth() const;
+
   void Print() const;
+
  private:
-    double const fWidth;
+  double const fWidth;
 };
 
 }  // namespace pt
