@@ -1,9 +1,6 @@
-#include "particle.hpp"
-
 #include <cmath>
 
-#include "particleType.hpp"
-#include "resonanceType.hpp"
+#include "particle.hpp"
 
 void Impulse::Print() const {
   std::cout << " Impulse:  (" << fPx << ", " << fPy << ", " << fPz << " ) \n";
@@ -25,6 +22,10 @@ Impulse operator+(const Impulse& p1, const Impulse& p2) {
 
 namespace pt {
 
+const int Particle::fMaxNumParticleType = 10;
+
+std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes = std::make_unique<std::unique_ptr<ParticleType>[]>(Particle::fMaxNumParticleType);
+
 // Public Methods
 
 Particle::Particle(char* name, Impulse P) : fIndex(FindParticle(name)), fP(P) {
@@ -37,9 +38,9 @@ void Particle::AddParticleType(char* name, double mass, int charge,
                                double width) {
   if (FindParticle(name) == fNParticleType &&
       FindParticle(name) < fMaxNumParticleType) {
-    (width == 0.) ? fParticleType[FindParticle(name)] =
+    (width == 0.) ? fParticleTypes[FindParticle(name)] =
                         new ParticleType(name, mass, charge)
-                  : fParticleType[FindParticle(name)] =
+                  : fParticleTypes[FindParticle(name)] =
                         new ResonanceType(name, mass, charge, width);
 
     ++fNParticleType;
@@ -59,14 +60,14 @@ void Particle::SetIndex(char* name) {
 
 void Particle::PrintParticleTypes() {
   for (int i = 0; i < fMaxNumParticleType; ++i) {
-    fParticleType[i]->Print();
+    fParticleTypes[i]->Print();
   }
 }
 
 void Particle::Print() const {
   std::cout << "\n PARTICLE DATA \n\n -------------- \n\n"
             << " Index: " << std::setw(8) << fIndex
-            << "\n Name: " << std::setw(8) << fParticleType[fIndex]->GetName()
+            << "\n Name: " << std::setw(8) << fParticleTypes[fIndex]->GetName()
             << "\n";
   fP.Print();
 }
@@ -77,7 +78,7 @@ double Particle::GetPy() const { return fP.fPy; }
 
 double Particle::GetPz() const { return fP.fPz; }
 
-double Particle::GetMass() const { return fParticleType[fIndex]->GetMass(); }
+double Particle::GetMass() const { return fParticleTypes[fIndex]->GetMass(); }
 
 double Particle::GetEnergy() const {
   return sqrt(GetMass() * GetMass() + fP.SquaredNorm());
@@ -106,7 +107,7 @@ int Particle::FindParticle(char* name) {
   int i{0};
 
   for (; i < fNParticleType; ++i) {
-    if (fParticleType[i]->GetName() == name) {
+    if (fParticleTypes[i]->GetName() == name) {
       break;
     }
   }

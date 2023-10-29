@@ -1,7 +1,8 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include "particleType.hpp"
+#include <memory>
+
 #include "resonanceType.hpp"
 
 struct Impulse {
@@ -42,8 +43,8 @@ class Particle {
   void SetP(Impulse const& p);
 
  private:
-  static const int fMaxNumParticleType = 10;
-  static ParticleType* fParticleType[fMaxNumParticleType];
+  static const int fMaxNumParticleType;
+  static std::unique_ptr<std::unique_ptr<ParticleType>[]> fParticleTypes;
   static int fNParticleType;
   int fIndex;
   Impulse fP;

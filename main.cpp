@@ -1,6 +1,4 @@
 #include "particle.hpp"
-#include "particleType.hpp"
-#include "resonanceType.hpp"
 
 int main() {
   try {
