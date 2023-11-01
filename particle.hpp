@@ -2,6 +2,7 @@
 #define PARTICLE_HPP
 
 #include <memory>
+#include <cmath>
 
 #include "resonanceType.hpp"
 
@@ -20,12 +21,12 @@ namespace pt {
 
 class Particle {
  public:
-  Particle(char* name, Impulse P);
-  const int GetIndex() const;
-  static void AddParticleType(char* name, double mass, int charge,
+  Particle(std::string const& name, Impulse P);
+  int GetIndex() const;
+  static void AddParticleType(std::string const& name, double mass, int charge,
                               double width = 0.);
   void SetIndex(int index);
-  void SetIndex(char* name);
+  void SetIndex(std::string const& name);
 
   static void PrintParticleTypes();
   void Print() const;
@@ -49,7 +50,7 @@ class Particle {
   int fIndex;
   Impulse fP;
 
-  static int FindParticle(char* name);
+  static int FindParticle(std::string const& name);
 };
 
 }  // namespace pt

@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "particle.hpp"
 
 void Impulse::Print() const {
@@ -24,28 +22,36 @@ namespace pt {
 
 const int Particle::fMaxNumParticleType = 10;
 
-std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes = std::make_unique<std::unique_ptr<ParticleType>[]>(Particle::fMaxNumParticleType);
+std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes =
+    std::make_unique<std::unique_ptr<ParticleType>[]>(
+        Particle::fMaxNumParticleType);
 
 // Public Methods
 
-Particle::Particle(char* name, Impulse P) : fIndex(FindParticle(name)), fP(P) {
-  if (fIndex == fNParticleType) throw std::runtime_error("Particle not found");
+Particle::Particle(std::string const& name, Impulse P) : fIndex(FindParticle(name)), fP(P) {
+  if (fIndex == fNParticleType) throw std::runtime_error{" Particle not found \n\n"};
 }
 
-const int Particle::GetIndex() const { return fIndex; }
+int Particle::GetIndex() const { return fIndex; }
 
-void Particle::AddParticleType(char* name, double mass, int charge,
+void Particle::AddParticleType(std::string const& name, double mass, int charge,
                                double width) {
   if (FindParticle(name) == fNParticleType &&
       FindParticle(name) < fMaxNumParticleType) {
-    (width == 0.) ? fParticleTypes[FindParticle(name)] =
-                        new ParticleType(name, mass, charge)
+    /*(width == 0.) ? fParticleTypes[FindParticle(name)] =
+                        std::move(new ParticleType(name, mass, charge))
                   : fParticleTypes[FindParticle(name)] =
-                        new ResonanceType(name, mass, charge, width);
-
+                        new ResonanceType(name, mass, charge, width);*/
+    if (width == 0.) {
+      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(new ParticleType(name, mass, charge)));
+    } else {
+      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(new ResonanceType(name, mass, charge, width)));
+    }
     ++fNParticleType;
-  } else {
-    std::cout << " Particle already exists \n";
+  } else if (FindParticle(name) == fMaxNumParticleType){
+    throw std::runtime_error{" Array size limit reached \n\n"};
+  }else{
+    std::cout << " Particle already exists \n\n";
   }
 };
 
@@ -53,15 +59,16 @@ void Particle::SetIndex(int index) {
   if (index >= 0 && index < fNParticleType) fIndex = index;
 }
 
-void Particle::SetIndex(char* name) {
+void Particle::SetIndex(std::string const& name) {
   if (FindParticle(name) >= 0 && FindParticle(name) < fNParticleType)
     fIndex = FindParticle(name);
 }
 
 void Particle::PrintParticleTypes() {
-  for (int i = 0; i < fMaxNumParticleType; ++i) {
+  for (int i = 0; i < fNParticleType; ++i) {
     fParticleTypes[i]->Print();
   }
+  std::cout << '\n';
 }
 
 void Particle::Print() const {
@@ -103,7 +110,7 @@ void Particle::SetP(Impulse const& p) { fP = p; }
 
 int Particle::fNParticleType = 0;
 
-int Particle::FindParticle(char* name) {
+int Particle::FindParticle(std::string const& name) {
   int i{0};
 
   for (; i < fNParticleType; ++i) {
@@ -112,10 +119,10 @@ int Particle::FindParticle(char* name) {
     }
   }
 
-  if (i != fMaxNumParticleType) {
+  if (i != fNParticleType) {
     return i;
   } else {
-    std::cout << "Particle not found \n";
+    // std::cout << "Particle not found \n";
     return fNParticleType;
   }
 }

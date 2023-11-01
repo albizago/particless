@@ -10,9 +10,12 @@ int main() {
     }
     std::cout << '\n';
 
-    pt::Particle::AddParticleType("Mesone D aka Piero", 1870., 0);
-    pt::Particle::AddParticleType("Kaccone positivo aka Ignazio", 490., 1, 2.);
-    pt::Particle::AddParticleType("zio", 1., 1);
+    delete particle_array[0];
+    delete particle_array[1];
+
+    pt::Particle::AddParticleType("Mesone", 1870., 0.);
+    pt::Particle::AddParticleType("Kaone", 490., 1, 2.);
+    pt::Particle::AddParticleType("Zio", 1., 1);
 
     pt::Particle::PrintParticleTypes();
 
@@ -21,11 +24,11 @@ int main() {
 
     pt::Particle g("Azio", {1., 2., 3.});
 
-    // char* provv_name;
+    std::string provv_name;
 
-    // std::cin >> provv_name;
+    std::cin >> provv_name;
 
-    // pt::Particle::AddParticleType(provv_name, 3., 25);
+    pt::Particle::AddParticleType(provv_name, 3., 25);
 
   } catch (std::exception& e) {
     std::cerr << e.what();
