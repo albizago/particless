@@ -28,8 +28,10 @@ std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes =
 
 // Public Methods
 
-Particle::Particle(std::string const& name, Impulse P) : fIndex(FindParticle(name)), fP(P) {
-  if (fIndex == fNParticleType) throw std::runtime_error{" Particle not found \n\n"};
+Particle::Particle(std::string const& name, Impulse P)
+    : fIndex(FindParticle(name)), fP(P) {
+  if (fIndex == fNParticleType)
+    throw std::runtime_error{" Particle not found \n\n"};
 }
 
 int Particle::GetIndex() const { return fIndex; }
@@ -43,14 +45,17 @@ void Particle::AddParticleType(std::string const& name, double mass, int charge,
                   : fParticleTypes[FindParticle(name)] =
                         new ResonanceType(name, mass, charge, width);*/
     if (width == 0.) {
-      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(new ParticleType(name, mass, charge)));
+      fParticleTypes[FindParticle(name)] = std::move(
+          std::unique_ptr<ParticleType>(new ParticleType(name, mass, charge)));
     } else {
-      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(new ResonanceType(name, mass, charge, width)));
+      fParticleTypes[FindParticle(name)] =
+          std::move(std::unique_ptr<ParticleType>(
+              new ResonanceType(name, mass, charge, width)));
     }
     ++fNParticleType;
-  } else if (FindParticle(name) == fMaxNumParticleType){
+  } else if (FindParticle(name) == fMaxNumParticleType) {
     throw std::runtime_error{" Array size limit reached \n\n"};
-  }else{
+  } else {
     std::cout << " Particle already exists \n\n";
   }
 };
@@ -75,7 +80,7 @@ void Particle::Print() const {
   std::cout << "\n PARTICLE DATA \n\n -------------- \n\n"
             << " Index: " << std::setw(8) << fIndex
             << "\n Name: " << std::setw(8) << fParticleTypes[fIndex]->GetName()
-            << "\n";
+            << "\n\n -------------- \n";
   fP.Print();
 }
 
@@ -84,6 +89,10 @@ double Particle::GetPx() const { return fP.fPx; }
 double Particle::GetPy() const { return fP.fPy; }
 
 double Particle::GetPz() const { return fP.fPz; }
+
+double Particle::GetCharge() const {
+  return fParticleTypes[fIndex]->GetCharge();
+}
 
 double Particle::GetMass() const { return fParticleTypes[fIndex]->GetMass(); }
 
@@ -106,6 +115,62 @@ void Particle::SetP(double px, double py, double pz) {
 
 void Particle::SetP(Impulse const& p) { fP = p; }
 
+int Particle::Decay2body(Particle &dau1,Particle &dau2) const {
+  if(GetMass() == 0.0){
+    std::cout << "Decayment cannot be preformed if mass is zero\n";
+    return 1;
+  }
+  
+  double massMot = GetMass();
+  double massDau1 = dau1.GetMass();
+  double massDau2 = dau2.GetMass();
+
+  if(fIndex > -1){ // add width effect
+
+    // gaussian random numbers
+
+    float x1, x2, w, y1;
+    
+    double invnum = 1./RAND_MAX;
+    do {
+      x1 = 2.0 * rand()*invnum - 1.0;
+      x2 = 2.0 * rand()*invnum - 1.0;
+      w = x1 * x1 + x2 * x2;
+    } while ( w >= 1.0 );
+    
+    w = sqrt( (-2.0 * log( w ) ) / w );
+    y1 = x1 * w;
+
+    massMot += fParticleTypes[fIndex]->GetWidth() * y1;
+
+  }
+
+  if(massMot < massDau1 + massDau2){
+    std::cout << "Decayment cannot be preformed because mass is too low in this channel\n";
+    return 2;
+  }
+  
+  double pout = sqrt((massMot*massMot - (massDau1+massDau2)*(massDau1+massDau2))*(massMot*massMot - (massDau1-massDau2)*(massDau1-massDau2)))/massMot*0.5;
+
+  double norm = 2*M_PI/RAND_MAX;
+
+  double phi = rand()*norm;
+  double theta = rand()*norm*0.5 - M_PI/2.;
+  dau1.SetP(pout*sin(theta)*cos(phi),pout*sin(theta)*sin(phi),pout*cos(theta));
+  dau2.SetP(-pout*sin(theta)*cos(phi),-pout*sin(theta)*sin(phi),-pout*cos(theta));
+
+  double energy = sqrt( fP.SquaredNorm() + massMot*massMot);
+
+  double bx = fP.fPx/energy;
+  double by = fP.fPy/energy;
+  double bz = fP.fPz/energy;
+
+  dau1.Boost(bx,by,bz);
+  dau2.Boost(bx,by,bz);
+
+  return 0;
+}
+
 // Private Methods
 
 int Particle::fNParticleType = 0;
@@ -125,6 +190,22 @@ int Particle::FindParticle(std::string const& name) {
     // std::cout << "Particle not found \n";
     return fNParticleType;
   }
+}
+
+void Particle::Boost(double bx, double by, double bz)
+{
+
+  double energy = GetEnergy();
+
+  //Boost this Lorentz vector
+  double b2 = bx*bx + by*by + bz*bz;
+  double gamma = 1.0 / sqrt(1.0 - b2);
+  double bp = bx*fP.fPx + by*fP.fPy + bz*fP.fPz;
+  double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+
+  fP.fPx += gamma2*bp*bx + gamma*bx*energy;
+  fP.fPy += gamma2*bp*by + gamma*by*energy;
+  fP.fPz += gamma2*bp*bz + gamma*bz*energy;
 }
 
 }  // namespace pt

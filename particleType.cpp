@@ -14,6 +14,8 @@ double ParticleType::GetMass() const { return fMass; }
 
 int ParticleType::GetCharge() const { return fCharge; }
 
+double ParticleType::GetWidth() const { return 0.; }
+
 void ParticleType::Print() const {
   std::cout << "\n PARTICLE TYPE DATA \n\n -------------- \n\n"
             << " Name: " << std::setw(8) << fName << "\n Mass: " << std::setw(8)

@@ -1,8 +1,8 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include <memory>
 #include <cmath>
+#include <memory>
 
 #include "resonanceType.hpp"
 
@@ -35,6 +35,8 @@ class Particle {
   double GetPy() const;
   double GetPz() const;
 
+  double GetCharge() const;
+
   double GetMass() const;
   double GetEnergy() const;
 
@@ -42,6 +44,8 @@ class Particle {
 
   void SetP(double px, double py, double pz);
   void SetP(Impulse const& p);
+
+  int Decay2body(Particle& dau1, Particle& dau2) const;
 
  private:
   static const int fMaxNumParticleType;
@@ -51,6 +55,8 @@ class Particle {
   Impulse fP;
 
   static int FindParticle(std::string const& name);
+
+  void Boost(double bx, double by, double bz);
 };
 
 }  // namespace pt
