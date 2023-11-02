@@ -4,7 +4,7 @@ namespace pt {
 
 ParticleType::ParticleType(std::string const& name, double mass, int charge)
     : fName(name), fMass(mass), fCharge(charge) {
-  if (mass < 0 || (charge < -1 && charge > 1))
+  if (mass < 0 || charge < -1 || charge > 1)
     throw std::runtime_error("Invalid input");
 }
 
