@@ -22,6 +22,7 @@ namespace pt {
 class Particle {
  public:
   Particle(std::string const& name, Impulse P);
+  Particle() = default;
   int GetIndex() const;
   static void AddParticleType(std::string const& name, double mass, int charge,
                               double width = 0.);
