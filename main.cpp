@@ -11,8 +11,8 @@
 #include "TRandom.h"
 #include "particle.hpp"
 
-int main(int argc, char** argv) {
-  TApplication app("ROOT Application", &argc, argv);
+int main() {
+  std::cout << "Particle Types generation" << '\n';
 
   pt::Particle::AddParticleType("pion+", 0.13957, 1);
   pt::Particle::AddParticleType("pion-", 0.13957, -1);
@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
   gRandom->SetSeed();
 
   std::array<pt::Particle, 130> EventParticles;
+
+  std::cout << " Histogram generation" << '\n';
 
   TH1I* type_histo = new TH1I("type", "Types of generated particles", 7, 0, 7);
   TH2D* angle_histo =
@@ -55,6 +57,8 @@ int main(int argc, char** argv) {
   Impulse p_gen;   // vector
 
   Double_t rndm_idx;
+
+  std::cout << "Event generation" << '\n';
 
   for (Int_t i = 0; i < 10e5; ++i) {
     Int_t decay_idx = 0;
@@ -116,39 +120,44 @@ int main(int argc, char** argv) {
       // fill type, energy
       type_histo->Fill(EventParticles[j].GetIndex());
       energy_histo->Fill(EventParticles[j].GetEnergy());
-    }
 
-    // fill invariant mass histos for opposite / same charge
-    for (Int_t a = 0; a < EventParticles.size(); ++a) {
-      for (Int_t b = a + 1; b < EventParticles.size(); ++b) {
-        if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() < 0) {
-          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                  0.633245 &&
-              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                  0.633235) {
-            inv_mass_pk0_histo->Fill(
+      std::cout << "Invariant massses calculation and histos filling" << '\n';
+
+      // fill invariant mass histos for opposite / same charge
+      for (Int_t a = 0; a < 100 + decay_idx; ++a) {
+        for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
+          if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() <
+              0) {
+            if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
+                    0.633245 &&
+                EventParticles[a].GetMass() + EventParticles[b].GetMass() >
+                    0.633235) {
+              inv_mass_pk0_histo->Fill(
+                  EventParticles[a].InvMass(EventParticles[b]));
+            }
+
+            inv_mass_disc_histo->Fill(
+                EventParticles[a].InvMass(EventParticles[b]));
+
+          } else if (EventParticles[a].GetCharge() *
+                         EventParticles[a].GetCharge() >
+                     0) {
+            if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
+                    0.633245 &&
+                EventParticles[a].GetMass() + EventParticles[b].GetMass() >
+                    0.633235) {
+              inv_mass_pk1_histo->Fill(
+                  EventParticles[a].InvMass(EventParticles[b]));
+            }
+            inv_mass_conc_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
-
-          inv_mass_disc_histo->Fill(
-              EventParticles[a].InvMass(EventParticles[b]));
-
-        } else if (EventParticles[a].GetCharge() *
-                       EventParticles[a].GetCharge() >
-                   0) {
-          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                  0.633245 &&
-              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                  0.633235) {
-            inv_mass_pk1_histo->Fill(
-                EventParticles[a].InvMass(EventParticles[b]));
-          }
-          inv_mass_conc_histo->Fill(
-              EventParticles[a].InvMass(EventParticles[b]));
         }
       }
     }
   }
+
+  std::cout << "Histos filled" << '\n';
 
   TList* list = new TList();
   list->Add(type_histo);
@@ -162,21 +171,20 @@ int main(int argc, char** argv) {
   list->Add(inv_mass_pk1_histo);
   list->Add(inv_mass_kstar_histo);
 
-  TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
+  /*TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
   canva->Divide(2, 5);
 
   for (Int_t canva_idx = 1; canva_idx <= 10; ++canva_idx) {
     canva->cd(canva_idx);
     list->At(canva_idx)->Draw();
-  }
+  } */
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
   list->Write();
-  canva->Write();
+  // canva->Write();
 
   file->Close();
 
-  app.Run();
   return 0;
 }
