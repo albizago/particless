@@ -1,1 +1,13 @@
 testfile
+<<<<<<< HEAD
+=======
+.vscode/
+oreste.exe
+test.cpp
+histos.root
+
+
+
+
+
+>>>>>>> right

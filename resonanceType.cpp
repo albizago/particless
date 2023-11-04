@@ -2,7 +2,7 @@
 
 namespace pt {
 
-ResonanceType::ResonanceType(char* name, double mass, int charge, double width)
+ResonanceType::ResonanceType(std::string const& name, double mass, int charge, double width)
     : ParticleType(name, mass, charge), fWidth(width) {}
 
 double ResonanceType::GetWidth() const { return fWidth; }

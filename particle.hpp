@@ -1,7 +1,9 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include "particleType.hpp"
+#include <cmath>
+#include <memory>
+
 #include "resonanceType.hpp"
 
 struct Impulse {
@@ -19,12 +21,13 @@ namespace pt {
 
 class Particle {
  public:
-  Particle(char* name, Impulse P);
-  const int GetIndex() const;
-  static void AddParticleType(char* name, double mass, int charge,
+  Particle(std::string const& name, Impulse P);
+  Particle() = default;
+  int GetIndex() const;
+  static void AddParticleType(std::string const& name, double mass, int charge,
                               double width = 0.);
   void SetIndex(int index);
-  void SetIndex(char* name);
+  void SetIndex(std::string const& name);
 
   static void PrintParticleTypes();
   void Print() const;
@@ -32,6 +35,8 @@ class Particle {
   double GetPx() const;
   double GetPy() const;
   double GetPz() const;
+
+  double GetCharge() const;
 
   double GetMass() const;
   double GetEnergy() const;
@@ -41,16 +46,19 @@ class Particle {
   void SetP(double px, double py, double pz);
   void SetP(Impulse const& p);
 
+  int Decay2body(Particle& dau1, Particle& dau2) const;
+
  private:
-  static const int fMaxNumParticleType = 10;
-  static ParticleType* fParticleType[fMaxNumParticleType];
+  static const int fMaxNumParticleType;
+  static std::unique_ptr<std::unique_ptr<ParticleType>[]> fParticleTypes;
   static int fNParticleType;
   int fIndex;
   Impulse fP;
 
-  static int FindParticle(char* name);
-};
+  static int FindParticle(std::string const& name);
 
+  void Boost(double bx, double by, double bz);
+};
 }  // namespace pt
 
 #endif
