@@ -60,7 +60,7 @@ int main() {
 
   std::cout << "Event generation" << '\n';
 
-  for (Int_t i = 0; i < 10e5; ++i) {
+  for (Int_t i = 0; i < 100; ++i) {
     Int_t decay_idx = 0;
     for (Int_t j = 0; j < 100; ++j) {
       // random polar variables
@@ -120,38 +120,34 @@ int main() {
       // fill type, energy
       type_histo->Fill(EventParticles[j].GetIndex());
       energy_histo->Fill(EventParticles[j].GetEnergy());
-
-      std::cout << "Invariant massses calculation and histos filling" << '\n';
-
-      // fill invariant mass histos for opposite / same charge
-      for (Int_t a = 0; a < 100 + decay_idx; ++a) {
-        for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
-          if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() <
-              0) {
-            if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                    0.633245 &&
-                EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                    0.633235) {
-              inv_mass_pk0_histo->Fill(
-                  EventParticles[a].InvMass(EventParticles[b]));
-            }
-
-            inv_mass_disc_histo->Fill(
-                EventParticles[a].InvMass(EventParticles[b]));
-
-          } else if (EventParticles[a].GetCharge() *
-                         EventParticles[a].GetCharge() >
-                     0) {
-            if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                    0.633245 &&
-                EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                    0.633235) {
-              inv_mass_pk1_histo->Fill(
-                  EventParticles[a].InvMass(EventParticles[b]));
-            }
-            inv_mass_conc_histo->Fill(
+    }
+    // fill invariant mass histos for opposite / same charge
+    for (Int_t a = 0; a < 100 + decay_idx; ++a) {
+      for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
+        if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() < 0) {
+          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
+                  0.633245 &&
+              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
+                  0.633235) {
+            inv_mass_pk0_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
+
+          inv_mass_disc_histo->Fill(
+              EventParticles[a].InvMass(EventParticles[b]));
+
+        } else if (EventParticles[a].GetCharge() *
+                       EventParticles[a].GetCharge() >
+                   0) {
+          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
+                  0.633245 &&
+              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
+                  0.633235) {
+            inv_mass_pk1_histo->Fill(
+                EventParticles[a].InvMass(EventParticles[b]));
+          }
+          inv_mass_conc_histo->Fill(
+              EventParticles[a].InvMass(EventParticles[b]));
         }
       }
     }
@@ -171,13 +167,13 @@ int main() {
   list->Add(inv_mass_pk1_histo);
   list->Add(inv_mass_kstar_histo);
 
-  /*TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
+  TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
   canva->Divide(2, 5);
 
   for (Int_t canva_idx = 1; canva_idx <= 10; ++canva_idx) {
     canva->cd(canva_idx);
     list->At(canva_idx)->Draw();
-  } */
+  }
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
