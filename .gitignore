@@ -3,7 +3,19 @@ testfile
 oreste.exe
 test.cpp
 histos.root
-
+particle.cxx
+particleType.cxx
+particleType_cxx.d
+particleType_cxx.so
+particleType_cxx_ACLiC_dict_rdict.pcm
+particle_cxx.d
+particle_cxx.so
+particle_cxx_ACLiC_dict_rdict.pcm
+particle_sim.C
+resonanceType.cxx
+resonanceType_cxx.d
+resonanceType_cxx.so
+resonanceType_cxx_ACLiC_dict_rdict.pcm
 
 
 
