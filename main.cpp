@@ -11,7 +11,9 @@
 #include "TRandom.h"
 #include "particle.hpp"
 
-int main() {
+int main(int argc, char** argv) {
+  TApplication app("ROOT Application", &argc, argv);
+
   std::cout << "Particle Types generation" << '\n';
 
   pt::Particle::AddParticleType("pion+", 0.13957, 1);
@@ -170,17 +172,24 @@ int main() {
   TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
   canva->Divide(2, 5);
 
+  std::cout << "Canva created" << '\n';
+
   for (Int_t canva_idx = 1; canva_idx <= 10; ++canva_idx) {
     canva->cd(canva_idx);
-    list->At(canva_idx)->Draw();
+    list->At(canva_idx - 1)->Draw();
   }
+
+  std::cout << "Histos drawn" << '\n';
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
   list->Write();
-  // canva->Write();
+  canva->Write();
 
   file->Close();
 
+  std::cout << "Histos written to file '' histos.root '' " << '\n';
+
+  app.Run();
   return 0;
 }
