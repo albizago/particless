@@ -30,26 +30,44 @@ int main(int argc, char** argv) {
 
   std::cout << " Histogram generation" << '\n';
 
+  // Histo containing the proportions of generated particle TYPES
   TH1I* type_histo = new TH1I("type", "Types of generated particles", 7, 0, 7);
+
+  // 2D Histo containing particle's momentum directions
   TH2D* angle_histo =
       new TH2D("angles", "Azimutal and polar angles of momentum", 360, 0.,
                2 * TMath::Pi(), 180, 0., TMath::Pi());
+
+  // Histo containing momentum modules
   TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 30);
+
+  // Histo containing tranverse impulse
   TH1D* transv_impulse_histo =
       new TH1D("t_impulse", "Tranverse impulse", 1000, 0, 30);
+
+  // Histo containing energy of particles
   TH1D* energy_histo =
       new TH1D("energy", "Energy of generated particles", 1000, 0, 50);
 
+  // Histo containing invariant mass of all particles of opposite sign charges
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
                "Invariant mass of oppositely charged particles", 1000, 0, 1.5);
+
+  // Histo containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
                "Invariant mass of identically charged particles", 1000, 0, 1.5);
+
+  // Histo containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
       new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 1000, 0, 1.5);
+
+  // Histo containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
       new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 1000, 0, 1.5);
+
+  // Histo containing invariant mass of products of k* decays
   TH1D* inv_mass_kstar_histo = new TH1D(
       "inv_mass_kstar", "Invariant mass of products of K* decay", 1000, 0, 1.5);
 
@@ -104,6 +122,7 @@ int main(int argc, char** argv) {
         EventParticles[j].SetIndex("k*");
         EventParticles[j].SetP(p_gen);
         rndm_idx = gRandom->Rndm();
+
         if (rndm_idx < 0.5) {
           EventParticles[100 + decay_idx].SetIndex("pion+");
           EventParticles[101 + decay_idx].SetIndex("kaon-");
@@ -115,18 +134,22 @@ int main(int argc, char** argv) {
           EventParticles[j].Decay2body(EventParticles[100 + decay_idx],
                                        EventParticles[101 + decay_idx]);
         }
+
         inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
             EventParticles[101 + decay_idx]));
         decay_idx += 2;
       }
+
       // fill type, energy
       type_histo->Fill(EventParticles[j].GetIndex());
       energy_histo->Fill(EventParticles[j].GetEnergy());
     }
+
     // fill invariant mass histos for opposite / same charge
     for (Int_t a = 0; a < 100 + decay_idx; ++a) {
       for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
         if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() < 0) {
+          // Fill histo of pions and kaons with opposite charges
           if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
                   0.633245 &&
               EventParticles[a].GetMass() + EventParticles[b].GetMass() >
@@ -135,6 +158,7 @@ int main(int argc, char** argv) {
                 EventParticles[a].InvMass(EventParticles[b]));
           }
 
+          // Fill histo of invariant mass of opposite sign charges
           inv_mass_disc_histo->Fill(
               EventParticles[a].InvMass(EventParticles[b]));
 
@@ -145,9 +169,11 @@ int main(int argc, char** argv) {
                   0.633245 &&
               EventParticles[a].GetMass() + EventParticles[b].GetMass() >
                   0.633235) {
+            // Fill histo of pions and kaons with same charges
             inv_mass_pk1_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
+          // Fill histo of invariant mass of same sign charges
           inv_mass_conc_histo->Fill(
               EventParticles[a].InvMass(EventParticles[b]));
         }
