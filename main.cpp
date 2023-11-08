@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 
   std::cout << "Event generation" << '\n';
 
-  for (Int_t i = 0; i < 100; ++i) {
+  for (Int_t i = 0; i < 10000; ++i) {
     Int_t decay_idx = 0;
     for (Int_t j = 0; j < 100; ++j) {
       // random polar variables
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
     // fill invariant mass histos for opposite / same charge
     for (Int_t a = 0; a < 100 + decay_idx; ++a) {
       for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
-        if (EventParticles[a].GetCharge() * EventParticles[a].GetCharge() < 0) {
+        if (EventParticles[a].GetCharge() * EventParticles[b].GetCharge() < 0) {
           // Fill histo of pions and kaons with opposite charges
           if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
                   0.633245 &&
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
               EventParticles[a].InvMass(EventParticles[b]));
 
         } else if (EventParticles[a].GetCharge() *
-                       EventParticles[a].GetCharge() >
+                       EventParticles[b].GetCharge() >
                    0) {
           if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
                   0.633245 &&
