@@ -9,6 +9,7 @@
 #include "TMath.h"
 #include "TROOT.h"
 #include "TRandom.h"
+#include "TArray.h"
 #include "particle.hpp"
 
 int main(int argc, char** argv) {
@@ -53,23 +54,28 @@ int main(int argc, char** argv) {
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
                "Invariant mass of oppositely charged particles", 1000, 0, 1.5);
+  inv_mass_disc_histo->Sumw2();
 
   // Histo containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
                "Invariant mass of identically charged particles", 1000, 0, 1.5);
+  inv_mass_conc_histo->Sumw2();
 
   // Histo containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
       new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 1000, 0, 1.5);
+  inv_mass_pk0_histo->Sumw2();
 
   // Histo containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
       new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 1000, 0, 1.5);
+  inv_mass_pk1_histo->Sumw2();
 
   // Histo containing invariant mass of products of k* decays
   TH1D* inv_mass_kstar_histo = new TH1D(
       "inv_mass_kstar", "Invariant mass of products of K* decay", 1000, 0, 1.5);
+  inv_mass_kstar_histo->Sumw2();
 
   Double_t phi;
   Double_t theta;
@@ -98,6 +104,15 @@ int main(int argc, char** argv) {
           TMath::Sqrt(p_gen.fPx * p_gen.fPx + p_gen.fPy * p_gen.fPy));
 
       rndm_idx = gRandom->Rndm();
+
+    TArrayD* prop_arr = new TArrayD(7);
+    prop_arr->SetAt(0.4, 0);
+    prop_arr->SetAt(0.4, 1);
+    prop_arr->SetAt(0.05, 2);
+    prop_arr->SetAt(0.05, 3);
+    prop_arr->SetAt(0.045, 4);
+    prop_arr->SetAt(0.045, 5);
+    prop_arr->SetAt(0.01, 6);
 
       // random type assignment
       if (rndm_idx < 0.4) {
