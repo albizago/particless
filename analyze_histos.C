@@ -1,24 +1,24 @@
 #include <iostream>
 
+#include "TCanvas.h"
 #include "TF1.h"
 #include "TFile.h"
 #include "TH2D.h"
 #include "TList.h"
 #include "TMath.h"
+#include "TRoot.h"
+#include "TStyle.h"
+
+void setStyle() {
+  gROOT->SetStyle("Plain");
+  gStyle->SetPalette(57);
+  gStyle->SetOptTitle(0);
+}
 
 void analyze_histos() {
-  // TFile* data_out = new TFile("data.txt", "recreate");
   TFile* histos_file = new TFile("histos.root", "read");
   bool compliance = true;
   TH1D* histo_ptr = nullptr;
-
-  /*for (Int_t idx = 0; idx < 5; ++idx) {
-    histo_ptr = (TH1D*)list->At(idx);
-    compliance = (TMath::Nint(TMath::Log10(histo_ptr->Integral())) == 7);
-    if (!compliance) break;
-  }*/
-
-  //(compliance) ? std::cout << "Va bene" : std::cout << "Scossa";
 
   TH1I* type = histos_file->Get<TH1I>("type");
 
@@ -114,21 +114,33 @@ void analyze_histos() {
   TH1D* conc_pk_histo = histos_file->Get<TH1D>("inv_mass_pk1");
   TH1D* kstar_histo = histos_file->Get<TH1D>("inv_mass_kstar");
 
+  TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
+  canva->Divide(1, 2);
+  canva->cd(1);
+
   TH1D* diff1_histo = new TH1D(*disc_histo);
   diff1_histo->Sumw2();
   diff1_histo->Add(disc_histo, conc_histo, 1., -1.);
+
+  diff1_histo->Draw();
+  canva->cd(2);
 
   TH1D* diff2_histo = new TH1D(*disc_pk_histo);
   diff2_histo->Sumw2();
   diff2_histo->Add(disc_pk_histo, conc_pk_histo, 1., -1.);
 
-  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 1.5);
+  diff2_histo->Draw();
+  canva->cd(1);
+
+  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.5);
 
   gauss_dist->SetParameters(10, 0.8, 0.05);
 
-  diff1_histo->Fit("gauss", "q", "", 0., 1.5);
+  diff1_histo->Fit("gauss", "q", "", 0., 7.5);
 
   fit_func = diff1_histo->GetFunction("gauss");
+  fit_func->Draw("same");
+  canva->cd(2);
 
   std::cout << "\n DIFFERENCE 1 FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0);
@@ -137,11 +149,12 @@ void analyze_histos() {
   std::cout << "\n Chi square: " << fit_func->GetChisquare();
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
-  std::cout << "\n Probability: " << fit_func->GetProb();
+  std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
 
-  diff2_histo->Fit("gauss", "q", "", 0., 1.5);
+  diff2_histo->Fit("gauss", "q", "", 0., 7.5);
 
   fit_func = diff2_histo->GetFunction("gauss");
+  fit_func->Draw("same");
 
   std::cout << "\n DIFFERENCE 2 FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0);
@@ -150,5 +163,7 @@ void analyze_histos() {
   std::cout << "\n Chi square: " << fit_func->GetChisquare();
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
-  std::cout << "\n Probability: " << fit_func->GetProb();
+  std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
+
+  // TFile* data_out = new TFile("data.txt", "recreate");
 }
