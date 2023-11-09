@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
   std::cout << "Event generation" << '\n';
 
-  for (Int_t i = 0; i < 10000; ++i) {
+  for (Int_t i = 0; i < 1.e5; ++i) {
     Int_t decay_idx = 0;
     for (Int_t j = 0; j < 100; ++j) {
       // random polar variables
