@@ -2,6 +2,7 @@
 
 #include "TApplication.h"
 #include "TArray.h"
+#include "TBenchmark.h"
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TH1I.h"
@@ -15,7 +16,9 @@
 int main(int argc, char** argv) {
   TApplication app("ROOT Application", &argc, argv);
 
-  std::cout << "Particle Types generation" << '\n';
+  std::cout << "K* decay simulation \n\n";
+
+  // Particle types generation...
 
   pt::Particle::AddParticleType("pion+", 0.13957, 1);
   pt::Particle::AddParticleType("pion-", 0.13957, -1);
@@ -25,11 +28,13 @@ int main(int argc, char** argv) {
   pt::Particle::AddParticleType("proton-", 0.93827, -1);
   pt::Particle::AddParticleType("k*", 0.89166, 0, 0.05);
 
+  std::cout << "Particle Types generated\n";
+
   gRandom->SetSeed();
 
   std::array<pt::Particle, 130> EventParticles;
 
-  std::cout << " Histogram generation" << '\n';
+  // Histograms generation...
 
   // Histo containing the proportions of generated particle TYPES
   TH1I* type_histo = new TH1I("type", "Types of generated particles", 7, 0, 7);
@@ -77,6 +82,8 @@ int main(int argc, char** argv) {
       "inv_mass_kstar", "Invariant mass of products of K* decay", 1000, 0, 1.5);
   inv_mass_kstar_histo->Sumw2();
 
+  std::cout << "Histogram generated\n\n";
+
   Double_t phi;
   Double_t theta;
   Double_t p_mod;  // modulus
@@ -84,7 +91,13 @@ int main(int argc, char** argv) {
 
   Double_t rndm_idx;
 
-  std::cout << "Event generation" << '\n';
+  TBenchmark time;
+
+  std::cout << "Event generation and histogram filling begun...\n";
+
+  time.Start("Event generation and histogram filling");
+
+  // Particle generation and histogram filling
 
   for (Int_t i = 0; i < 1E5; ++i) {
     Int_t decay_idx = 0;
@@ -155,12 +168,13 @@ int main(int argc, char** argv) {
         decay_idx += 2;
       }
 
-      // fill type, energy
+      // fill type, energy histos
       type_histo->Fill(EventParticles[j].GetIndex());
       energy_histo->Fill(EventParticles[j].GetEnergy());
     }
 
     // fill invariant mass histos for opposite / same charge
+
     for (Int_t a = 0; a < 100 + decay_idx; ++a) {
       for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
         if (EventParticles[a].GetCharge() * EventParticles[b].GetCharge() < 0) {
@@ -196,12 +210,15 @@ int main(int argc, char** argv) {
     }
   }
 
-  std::cout << "Histos filled" << '\n';
+  time.Stop("Event generation and histogram filling");
+  std::cout << "Event generation and histogram filling ended...\n";
+  time.Show("Event generation and histogram filling");
+  std::cout << '\n';
 
-  std::cout << inv_mass_conc_histo->GetBinContent(1001) << '\n';
+  /* std::cout << inv_mass_conc_histo->GetBinContent(1001) << '\n';
   std::cout << inv_mass_disc_histo->GetBinContent(1001) << '\n';
   std::cout << inv_mass_pk0_histo->GetBinContent(1001) << '\n';
-  std::cout << inv_mass_pk1_histo->GetBinContent(1001) << '\n';
+  std::cout << inv_mass_pk1_histo->GetBinContent(1001) << '\n'; */
 
   TList* list = new TList();
   list->Add(type_histo);
@@ -215,26 +232,47 @@ int main(int argc, char** argv) {
   list->Add(inv_mass_pk1_histo);
   list->Add(inv_mass_kstar_histo);
 
-  TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
-  canva->Divide(2, 5);
+  // canva definition
 
-  std::cout << "Canva created" << '\n';
+  TCanvas* canva1 = new TCanvas("canva1", "Types, Angles, Energy and Impulse",
+                                200, 10, 800, 800);
+  canva1->Divide(2, 3);
 
-  for (Int_t canva_idx = 1; canva_idx <= 10; ++canva_idx) {
-    canva->cd(canva_idx);
+  TCanvas* canva2 =
+      new TCanvas("canva2", "Invariant Masses", 200, 10, 800, 800);
+  canva2->Divide(2, 3);
+
+  std::cout << "Canvas created" << '\n';
+
+  // Drawing first five histograms (Types, Angles, Energy and Impulse)
+
+  canva1->cd();
+  for (Int_t canva_idx = 1; canva_idx <= 5; ++canva_idx) {
+    canva1->cd(canva_idx);
     list->At(canva_idx - 1)->Draw();
   }
 
-  std::cout << "Histos drawn" << '\n';
+  // Drawing last five histograms (Invariant Masses)
+  canva2->cd();
+  for (Int_t canva_idx = 1; canva_idx <= 5; ++canva_idx) {
+    canva2->cd(canva_idx);
+    list->At(canva_idx + 4)->Draw();
+  }
+
+  std::cout << "Histos drawn \n";
+
+  // Creating root file and writing histos
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
   list->Write();
-  canva->Write();
+  canva1->Write();
+  // canva2->Write();
 
   file->Close();
 
-  std::cout << "Histos written to file '' histos.root '' " << '\n';
+  std::cout << "Histos written to file '' histos.root '' " << '\n'
+            << "Analyse in Root with analyze_histo.C macro\n";
 
   app.Run();
   return 0;
