@@ -40,9 +40,15 @@ int main(int argc, char** argv) {
   TH1I* type_histo = new TH1I("type", "Types of generated particles", 7, 0, 7);
 
   // 2D Histo containing particle's momentum directions
-  TH2D* angle_histo =
+  /*TH2D* angle_histo =
       new TH2D("angles", "Azimutal and polar angles of momentum", 360, 0.,
                2 * TMath::Pi(), 180, 0., TMath::Pi());
+  */
+
+  TH1D* phi_histo = new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
+  TH1D* theta_histo = new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
+
+   
 
   // Histo containing momentum modules
   TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 30);
@@ -58,23 +64,23 @@ int main(int argc, char** argv) {
   // Histo containing invariant mass of all particles of opposite sign charges
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
-               "Invariant mass of oppositely charged particles", 1000, 0, 7.5);
+               "Invariant mass of oppositely charged particles", 10000, 0, 7.5);
   inv_mass_disc_histo->Sumw2();
 
   // Histo containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
-               "Invariant mass of identically charged particles", 1000, 0, 7.5);
+               "Invariant mass of identically charged particles", 10000, 0, 7.5);
   inv_mass_conc_histo->Sumw2();
 
   // Histo containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
-      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 1000, 0, 7.5);
+      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 10000, 0, 7.5);
   inv_mass_pk0_histo->Sumw2();
 
   // Histo containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
-      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 1000, 0, 7.5);
+      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 10000, 0, 7.5);
   inv_mass_pk1_histo->Sumw2();
 
   // Histo containing invariant mass of products of k* decays
@@ -111,7 +117,9 @@ int main(int argc, char** argv) {
       p_gen.fPz = p_mod * TMath::Cos(theta);
 
       // fill histos
-      angle_histo->Fill(phi, theta);
+      //angle_histo->Fill(phi, theta);
+      phi_histo->Fill(phi);
+      theta_histo->Fill(theta);
       impulse_histo->Fill(p_mod);
       transv_impulse_histo->Fill(
           TMath::Sqrt(p_gen.fPx * p_gen.fPx + p_gen.fPy * p_gen.fPy));
@@ -222,7 +230,9 @@ int main(int argc, char** argv) {
 
   TList* list = new TList();
   list->Add(type_histo);
-  list->Add(angle_histo);
+  //list->Add(angle_histo);
+  list->Add(phi_histo);
+  list->Add(theta_histo);
   list->Add(impulse_histo);
   list->Add(transv_impulse_histo);
   list->Add(energy_histo);
@@ -247,7 +257,7 @@ int main(int argc, char** argv) {
   // Drawing first five histograms (Types, Angles, Energy and Impulse)
 
   canva1->cd();
-  for (Int_t canva_idx = 1; canva_idx <= 5; ++canva_idx) {
+  for (Int_t canva_idx = 1; canva_idx <= 6; ++canva_idx) {
     canva1->cd(canva_idx);
     list->At(canva_idx - 1)->Draw();
   }
@@ -256,7 +266,7 @@ int main(int argc, char** argv) {
   canva2->cd();
   for (Int_t canva_idx = 1; canva_idx <= 5; ++canva_idx) {
     canva2->cd(canva_idx);
-    list->At(canva_idx + 4)->Draw();
+    list->At(canva_idx + 5)->Draw();
   }
 
   std::cout << "Histos drawn \n";

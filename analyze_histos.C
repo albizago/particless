@@ -6,7 +6,7 @@
 #include "TH2D.h"
 #include "TList.h"
 #include "TMath.h"
-#include "TRoot.h"
+#include "TROOT.h"
 #include "TStyle.h"
 
 void setStyle() {
@@ -81,10 +81,14 @@ void analyze_histos() {
   canva_angle->Divide(1, 2);
   canva_angle->cd(1);
 
-  TH2D* angle_histo = histos_file->Get<TH2D>("angles");
+  //TH2D* angle_histo = histos_file->Get<TH2D>("angles");
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
 
-  angle_histo->ProjectionX()->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
+  //angle_histo->ProjectionX()->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
+
+  TH1D* phi_histo = histos_file->Get<TH1D>("phi");
+
+  phi_histo->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
 
   std::cout << "\n AZIMUTHAL ANGLE PHI -- FIT FUNCTION\n";
   std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
@@ -96,12 +100,17 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb();
   std::cout << "--------------------- \n\n";
 
-  angle_histo->ProjectionX()->Draw();
+  //angle_histo->ProjectionX()->Draw();
+  phi_histo->Draw();
   uniform_dist->DrawCopy("SAME");
   canva_angle->cd(2);
 
   uniform_dist->SetRange(0., TMath::Pi());
-  angle_histo->ProjectionY()->Fit(uniform_dist, "q", "", 0., TMath::Pi());
+  //angle_histo->ProjectionY()->Fit(uniform_dist, "q", "", 0., TMath::Pi());
+  
+  TH1D* theta_histo = histos_file->Get<TH1D>("theta");
+
+  theta_histo->Fit(uniform_dist, "q", "", 0., TMath::Pi());
 
   std::cout << "\n POLAR ANGLE THETA -- FIT FUNCTION\n";
   std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
@@ -113,7 +122,8 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
 
-  angle_histo->ProjectionY()->Draw();
+  //angle_histo->ProjectionY()->Draw();
+  theta_histo->Draw();
   uniform_dist->DrawCopy("SAME");
 
   // Retrieving impulse histogram
@@ -182,10 +192,10 @@ void analyze_histos() {
 
   // Fitting with gaussian distribution
 
-  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.5);
-  gauss_dist->SetParameters(10, 0.8, 0.05);
+  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 3.);
+  gauss_dist->SetParameters(0.5, 0.8, 0.05);
 
-  diff1_histo->Fit("gauss", "q", "", 0., 7.5);
+  diff1_histo->Fit("gauss", "q", "", 0., 3.);
 
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->Draw("same");
@@ -203,8 +213,9 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
+  //std::cout << gauss_dist->Eval(0.88);
 
-  diff2_histo->Fit("gauss", "q", "", 0., 7.5);
+  diff2_histo->Fit("gauss", "q", "", 0., 3.);
 
   fit_func = diff2_histo->GetFunction("gauss");
   fit_func->Draw("same");
