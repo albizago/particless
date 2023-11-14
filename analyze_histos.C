@@ -76,48 +76,10 @@ void analyze_histos() {
 
   analyze_particle_type(type);
 
-  /* ((type->GetBinContent(1) - type->GetBinError(1)) < 0.4 * 1.e7 &&
-    0.4 * 1.e7 < (type->GetBinContent(1) + type->GetBinError(1)))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(1) << " " << type->GetBinError(1) << '\n';
-
-   ((type->GetBinContent(2) - type->GetBinError(2)) < 0.4 * 1.e7 &&
-    0.4 * 1.e7 < (type->GetBinContent(2) + type->GetBinError(2)))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(2) << " " << type->GetBinError(2) << '\n';
-
-   (type->GetBinContent(3) - type->GetBinError(3) < 0.05 * 1.e7 &&
-    0.05 * 1.e7 < type->GetBinContent(3) + type->GetBinError(3))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(3) << " " << type->GetBinError(3) << '\n';
-
-   (type->GetBinContent(4) - type->GetBinError(4) < 0.05 * 1.e7 &&
-    0.05 * 1.e7 < type->GetBinContent(4) + type->GetBinError(4))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(4) << " " << type->GetBinError(4) << '\n';
-
-   (type->GetBinContent(5) - type->GetBinError(5) < 0.045 * 1.e7 &&
-    0.045 * 1.e7 < type->GetBinContent(5) + type->GetBinError(5))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(5) << " " << type->GetBinError(5) << '\n';
-
-   (type->GetBinContent(6) - type->GetBinError(6) < 0.045 * 1.e7 &&
-    0.045 * 1.e7 < type->GetBinContent(6) + type->GetBinError(6))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(6) << " " << type->GetBinError(6) << '\n';
-
-   (type->GetBinContent(7) - type->GetBinError(7) < 0.01 * 1.e7 &&
-    0.01 * 1.e7 < type->GetBinContent(7) + type->GetBinError(7))
-       ? std::cout << "Va bene\n"
-       : std::cout << "Scossa\n";
-   std::cout << type->GetBinContent(7) << " " << type->GetBinError(7) << '\n';
- */
+  TCanvas* canva_angle =
+      new TCanvas("canva_angle", "histo_angles", 200, 10, 600, 400);
+  canva_angle->Divide(1, 2);
+  canva_angle->cd(1);
 
   TH2D* angle_histo = histos_file->Get<TH2D>("angles");
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
@@ -134,6 +96,10 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb();
   std::cout << "--------------------- \n\n";
 
+  angle_histo->ProjectionX()->Draw();
+  uniform_dist->DrawCopy("SAME");
+  canva_angle->cd(2);
+
   uniform_dist->SetRange(0., TMath::Pi());
   angle_histo->ProjectionY()->Fit(uniform_dist, "q", "", 0., TMath::Pi());
 
@@ -147,7 +113,14 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
 
+  angle_histo->ProjectionY()->Draw();
+  uniform_dist->DrawCopy("SAME");
+
   // Retrieving impulse histogram
+
+  TCanvas* canva_impulse =
+      new TCanvas("canva_mpulse", "impulse_angles", 200, 10, 600, 400);
+  canva_impulse->cd();
 
   TH1D* impulse_histo = histos_file->Get<TH1D>("impulse");
   TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 30.);
@@ -171,6 +144,9 @@ void analyze_histos() {
    1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())
       ? std::cout << "\n Va bene lo stessoooo \n"
       : std::cout << "\n Problemi con exp \n";
+
+  impulse_histo->Draw();
+  fit_func->Draw("SAME");
 
   // Retrieving invariant masses histograms
 
