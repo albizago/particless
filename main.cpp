@@ -48,8 +48,6 @@ int main(int argc, char** argv) {
   TH1D* phi_histo = new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
   TH1D* theta_histo = new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
 
-   
-
   // Histo containing momentum modules
   TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 30);
 
@@ -64,28 +62,28 @@ int main(int argc, char** argv) {
   // Histo containing invariant mass of all particles of opposite sign charges
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
-               "Invariant mass of oppositely charged particles", 10000, 0, 7.5);
+               "Invariant mass of oppositely charged particles", 5000, 0, 7.5);
   inv_mass_disc_histo->Sumw2();
 
   // Histo containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
-               "Invariant mass of identically charged particles", 10000, 0, 7.5);
+               "Invariant mass of identically charged particles", 50000, 0, 7.5);
   inv_mass_conc_histo->Sumw2();
 
   // Histo containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
-      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 10000, 0, 7.5);
+      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 5000, 0, 7.5);
   inv_mass_pk0_histo->Sumw2();
 
   // Histo containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
-      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 10000, 0, 7.5);
+      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 5000, 0, 7.5);
   inv_mass_pk1_histo->Sumw2();
 
   // Histo containing invariant mass of products of k* decays
   TH1D* inv_mass_kstar_histo = new TH1D(
-      "inv_mass_kstar", "Invariant mass of products of K* decay", 1000, 0, 1.5);
+      "inv_mass_kstar", "Invariant mass of products of K* decay", 5000, 0, 1.5);
   inv_mass_kstar_histo->Sumw2();
 
   std::cout << "Histogram generated\n\n";

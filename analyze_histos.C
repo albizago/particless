@@ -77,16 +77,18 @@ void analyze_histos() {
   analyze_particle_type(type);
 
   TCanvas* canva_angle =
-      new TCanvas("canva_angle", "histo_angles", 200, 10, 600, 400);
+      new TCanvas("canva_angle", "Angle Distribution", 200, 10, 600, 400);
   canva_angle->Divide(1, 2);
   canva_angle->cd(1);
 
-  //TH2D* angle_histo = histos_file->Get<TH2D>("angles");
+  // TH2D* angle_histo = histos_file->Get<TH2D>("angles");
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
 
-  //angle_histo->ProjectionX()->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
+  // angle_histo->ProjectionX()->Fit(uniform_dist, "q", "", 0., 2 *
+  // TMath::Pi());
 
   TH1D* phi_histo = histos_file->Get<TH1D>("phi");
+  phi_histo->SetTitle("Azimuthal Angle Distribution");
 
   phi_histo->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
 
@@ -98,17 +100,18 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: "
             << uniform_dist->GetChisquare() / uniform_dist->GetNDF();
   std::cout << "\n Probability: " << uniform_dist->GetProb();
-  std::cout << "--------------------- \n\n";
+  std::cout << "\n--------------------- \n\n";
 
-  //angle_histo->ProjectionX()->Draw();
+  // angle_histo->ProjectionX()->Draw();
   phi_histo->Draw();
   uniform_dist->DrawCopy("SAME");
   canva_angle->cd(2);
 
   uniform_dist->SetRange(0., TMath::Pi());
-  //angle_histo->ProjectionY()->Fit(uniform_dist, "q", "", 0., TMath::Pi());
-  
+  // angle_histo->ProjectionY()->Fit(uniform_dist, "q", "", 0., TMath::Pi());
+
   TH1D* theta_histo = histos_file->Get<TH1D>("theta");
+  theta_histo->SetTitle("Polar Angle Distribution");
 
   theta_histo->Fit(uniform_dist, "q", "", 0., TMath::Pi());
 
@@ -120,19 +123,20 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: "
             << uniform_dist->GetChisquare() / uniform_dist->GetNDF();
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
-  std::cout << "--------------------- \n\n";
+  std::cout << "\n--------------------- \n\n";
 
-  //angle_histo->ProjectionY()->Draw();
+  // angle_histo->ProjectionY()->Draw();
   theta_histo->Draw();
   uniform_dist->DrawCopy("SAME");
 
   // Retrieving impulse histogram
 
   TCanvas* canva_impulse =
-      new TCanvas("canva_mpulse", "impulse_angles", 200, 10, 600, 400);
+      new TCanvas("canva_mpulse", "Impulse Distribution", 200, 10, 600, 400);
   canva_impulse->cd();
 
   TH1D* impulse_histo = histos_file->Get<TH1D>("impulse");
+  impulse_histo->SetTitle("Distribution of particles' impulse");
   TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 30.);
 
   impulse_histo->Fit("exp", "q", "", 0., 30.);
@@ -158,6 +162,8 @@ void analyze_histos() {
   impulse_histo->Draw();
   fit_func->Draw("SAME");
 
+  // K* RESONANCE
+
   // Retrieving invariant masses histograms
 
   TH1D* disc_histo = histos_file->Get<TH1D>("inv_mass_disc");
@@ -166,40 +172,57 @@ void analyze_histos() {
   TH1D* conc_pk_histo = histos_file->Get<TH1D>("inv_mass_pk1");
   TH1D* kstar_histo = histos_file->Get<TH1D>("inv_mass_kstar");
 
-  TCanvas* canva = new TCanvas("canva", "histo_tot", 200, 10, 600, 400);
-  canva->Divide(1, 2);
-  canva->cd(1);
+  /* TCanvas* canva_inv_mass = new TCanvas(
+      "canva_inv_mass", "Invariant mass of all particles", 200, 10, 600, 400);
+  canva_inv_mass->Divide(1, 4);
+  canva_inv_mass->cd(1);
+  disc_histo->Draw();
+  canva_inv_mass->cd(2);
+  conc_histo->Draw();
+  canva_inv_mass->cd(3);
+  disc_pk_histo->Draw();
+  canva_inv_mass->cd(4);
+  conc_pk_histo->Draw(); */
+
+  TCanvas* canva_k_star =
+      new TCanvas("canva", "K* Resonance Analysis", 200, 10, 600, 400);
+  canva_k_star->Divide(1, 3);
+  canva_k_star->cd(1);
 
   // Difference between invariant masses of all particles of opposite charge and
   // all particles of same charge
 
   TH1D* diff1_histo = new TH1D(*disc_histo);
   diff1_histo->Sumw2();
+  diff1_histo->SetTitle(
+      "Difference between distribution of invariant masses of all particles of "
+      "opposite charge and all particles of same charge");
   diff1_histo->Add(disc_histo, conc_histo, 1., -1.);
-
-  diff1_histo->Draw();
-  canva->cd(2);
 
   // Difference between invariant masses of pions and kaons of opposite charges
   // and of same charges
 
   TH1D* diff2_histo = new TH1D(*disc_pk_histo);
   diff2_histo->Sumw2();
+  diff2_histo->SetTitle(
+      "Difference between distribution of invariant masses "
+      "of pions and kaons of opposite charges and of same "
+      "charges");
   diff2_histo->Add(disc_pk_histo, conc_pk_histo, 1., -1.);
-
-  diff2_histo->Draw();
-  canva->cd(1);
 
   // Fitting with gaussian distribution
 
-  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 3.);
+  TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
   gauss_dist->SetParameters(0.5, 0.8, 0.05);
 
-  diff1_histo->Fit("gauss", "q", "", 0., 3.);
+  diff1_histo->Fit("gauss", "q", "", 0., 7.);
 
   fit_func = diff1_histo->GetFunction("gauss");
+
+  canva_k_star->cd(1);
+  diff1_histo->Draw();
   fit_func->Draw("same");
-  canva->cd(2);
+  canva_k_star->cd(2);
 
   std::cout << "\n ALL PARTICLES DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
@@ -213,12 +236,10 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
-  //std::cout << gauss_dist->Eval(0.88);
+  // std::cout << gauss_dist->Eval(0.88);
 
-  diff2_histo->Fit("gauss", "q", "", 0., 3.);
-
+  diff2_histo->Fit("gauss", "q", "", 0., 7.);
   fit_func = diff2_histo->GetFunction("gauss");
-  fit_func->Draw("same");
 
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
@@ -232,6 +253,12 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
+
+  diff2_histo->Draw();
+  fit_func->Draw("same");
+  canva_k_star->cd(3);
+
+  kstar_histo->Draw();
 
   // TFile* data_out = new TFile("data.txt", "recreate");
 }
