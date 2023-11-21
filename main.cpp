@@ -18,7 +18,10 @@ int main(int argc, char** argv) {
 
   std::cout << "K* decay simulation \n\n";
 
-  // Particle types generation...
+  const Int_t n_types = 7;
+  const Double_t n_events = 1E3;
+
+  // Particle types
 
   pt::Particle::AddParticleType("pion+", 0.13957, 1);
   pt::Particle::AddParticleType("pion-", 0.13957, -1);
@@ -27,6 +30,20 @@ int main(int argc, char** argv) {
   pt::Particle::AddParticleType("proton+", 0.93827, 1);
   pt::Particle::AddParticleType("proton-", 0.93827, -1);
   pt::Particle::AddParticleType("k*", 0.89166, 0, 0.05);
+
+  // Proportions of generated particles
+
+  TArrayD* prop_arr = new TArrayD(n_types + 1);
+  
+  prop_arr->SetAt(n_events, n_types);
+
+  prop_arr->SetAt(0.4, 0);
+  prop_arr->SetAt(0.4, 1);
+  prop_arr->SetAt(0.05, 2);
+  prop_arr->SetAt(0.05, 3);
+  prop_arr->SetAt(0.045, 4);
+  prop_arr->SetAt(0.045, 5);
+  prop_arr->SetAt(0.01, 6);
 
   std::cout << "Particle Types generated\n";
 
@@ -37,7 +54,8 @@ int main(int argc, char** argv) {
   // Histograms generation...
 
   // Histo containing the proportions of generated particle TYPES
-  TH1I* type_histo = new TH1I("type", "Types of generated particles", 7, 0, 7);
+  TH1I* type_histo =
+      new TH1I("type", "Types of generated particles", n_types, 0, n_types);
 
   // 2D Histo containing particle's momentum directions
   /*TH2D* angle_histo =
@@ -45,8 +63,10 @@ int main(int argc, char** argv) {
                2 * TMath::Pi(), 180, 0., TMath::Pi());
   */
 
-  TH1D* phi_histo = new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
-  TH1D* theta_histo = new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
+  TH1D* phi_histo =
+      new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
+  TH1D* theta_histo =
+      new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
 
   // Histo containing momentum modules
   TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 30);
@@ -68,7 +88,7 @@ int main(int argc, char** argv) {
   // Histo containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
-               "Invariant mass of identically charged particles", 50000, 0, 7.5);
+               "Invariant mass of identically charged particles", 5000, 0, 7.5);
   inv_mass_conc_histo->Sumw2();
 
   // Histo containing invariant mass of opposite charge pions and kaons
@@ -103,7 +123,7 @@ int main(int argc, char** argv) {
 
   // Particle generation and histogram filling
 
-  for (Int_t i = 0; i < 1E5; ++i) {
+  for (Int_t i = 0; i < n_events; ++i) {
     Int_t decay_idx = 0;
     for (Int_t j = 0; j < 100; ++j) {
       // random polar variables
@@ -115,7 +135,7 @@ int main(int argc, char** argv) {
       p_gen.fPz = p_mod * TMath::Cos(theta);
 
       // fill histos
-      //angle_histo->Fill(phi, theta);
+      // angle_histo->Fill(phi, theta);
       phi_histo->Fill(phi);
       theta_histo->Fill(theta);
       impulse_histo->Fill(p_mod);
@@ -124,32 +144,29 @@ int main(int argc, char** argv) {
 
       rndm_idx = gRandom->Rndm();
 
-      TArrayD* prop_arr = new TArrayD(7);
-      prop_arr->SetAt(0.4, 0);
-      prop_arr->SetAt(0.4, 1);
-      prop_arr->SetAt(0.05, 2);
-      prop_arr->SetAt(0.05, 3);
-      prop_arr->SetAt(0.045, 4);
-      prop_arr->SetAt(0.045, 5);
-      prop_arr->SetAt(0.01, 6);
-
       // random type assignment
-      if (rndm_idx < 0.4) {
+      if (rndm_idx < prop_arr->GetAt(0)) {
         EventParticles[j].SetIndex("pion+");
         EventParticles[j].SetP(p_gen);
-      } else if (rndm_idx < 0.8) {
+      } else if (rndm_idx < prop_arr->GetAt(0) + prop_arr->GetAt(1)) {
         EventParticles[j].SetIndex("pion-");
         EventParticles[j].SetP(p_gen);
-      } else if (rndm_idx < 0.85) {
+      } else if (rndm_idx <
+                 prop_arr->GetAt(0) + prop_arr->GetAt(1) + prop_arr->GetAt(2)) {
         EventParticles[j].SetIndex("kaon+");
         EventParticles[j].SetP(p_gen);
-      } else if (rndm_idx < 0.9) {
+      } else if (rndm_idx < prop_arr->GetAt(0) + prop_arr->GetAt(1) +
+                                prop_arr->GetAt(2) + prop_arr->GetAt(3)) {
         EventParticles[j].SetIndex("kaon-");
         EventParticles[j].SetP(p_gen);
-      } else if (rndm_idx < 0.945) {
+      } else if (rndm_idx < prop_arr->GetAt(0) + prop_arr->GetAt(1) +
+                                prop_arr->GetAt(2) + prop_arr->GetAt(3) +
+                                prop_arr->GetAt(4)) {
         EventParticles[j].SetIndex("proton+");
         EventParticles[j].SetP(p_gen);
-      } else if (rndm_idx < 0.99) {
+      } else if (rndm_idx < prop_arr->GetAt(0) + prop_arr->GetAt(1) +
+                                prop_arr->GetAt(2) + prop_arr->GetAt(3) +
+                                prop_arr->GetAt(4) + prop_arr->GetAt(5)) {
         EventParticles[j].SetIndex("proton-");
         EventParticles[j].SetP(p_gen);
       } else {
@@ -228,7 +245,7 @@ int main(int argc, char** argv) {
 
   TList* list = new TList();
   list->Add(type_histo);
-  //list->Add(angle_histo);
+  // list->Add(angle_histo);
   list->Add(phi_histo);
   list->Add(theta_histo);
   list->Add(impulse_histo);
@@ -273,7 +290,10 @@ int main(int argc, char** argv) {
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
-  list->Write();
+  file->WriteObject(prop_arr, "prop_arr");
+  file->WriteObject(list, "list");
+
+  // list->Write();
   canva1->Write();
   // canva2->Write();
 
