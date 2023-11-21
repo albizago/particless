@@ -16,20 +16,24 @@ void setStyle() {
 }
 
 void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
-  std::cout << "Analysing particle types\n";
+  std::cout << "ANALYZING PARTYCLE TYPES DISTRIBUTION \n\n";
   Int_t n_types = prop_array->GetSize() - 1;
   Double_t n_generations = 100 * prop_array->At(n_types);
 
   for (Int_t i = 0; i < n_types; ++i) {
+    std::cout << "Particle: " << histo->GetXaxis()->GetBinLabel(i + 1) << '\n';
     std::cout << "Entries: " << histo->GetBinContent(i + 1) << " +- "
               << histo->GetBinError(i + 1) << '\n';
+    std::cout << "Expected: " << prop_array->At(i) * n_generations << '\n';
     ((histo->GetBinContent(i + 1) - histo->GetBinError(i + 1)) <
          prop_array->At(i) * n_generations &&
      prop_array->At(i) * n_generations <
          (histo->GetBinContent(i + 1) + histo->GetBinError(i + 1)))
         ? std::cout << "Expectation confirmed\n\n"
-        : std::cout << "Something went wrong. Check visually\n\n";
+        : std::cout << "Something went wrong. Check visually\n";
   }
+
+  std::cout << "\n--------------------- \n\n";
 }
 
 void analyze_histos() {
@@ -39,8 +43,6 @@ void analyze_histos() {
   TH1I* type = (TH1I*)histos_list->FindObject("type");
   TArrayD* proportions_array = histos_file->Get<TArrayD>("prop_arr");
 
-  analyze_particle_type(type, proportions_array);
-
   TCanvas* canva_retrieved = new TCanvas(
       "canva_retrieved", "Types proportions, Impulse and Angles distributions",
       200, 10, 600, 400);
@@ -49,9 +51,18 @@ void analyze_histos() {
   canva_retrieved->cd(1);
   type->GetYaxis()->SetTitle("Number of generated particles");
   type->GetXaxis()->SetTitle("Particle type");
-  type->GetXaxis()->SetBinLabel(1, "Pions");
+  type->GetXaxis()->SetBinLabel(1, "Pion +");
+  type->GetXaxis()->SetBinLabel(2, "Pion -");
+  type->GetXaxis()->SetBinLabel(3, "Kaon +");
+  type->GetXaxis()->SetBinLabel(4, "Kaon -");
+  type->GetXaxis()->SetBinLabel(5, "Proton");
+  type->GetXaxis()->SetBinLabel(6, "Antiproton");
+  type->GetXaxis()->SetBinLabel(7, "K*");
+  type->SetFillColor(kYellow);
 
   type->Draw();
+
+  analyze_particle_type(type, proportions_array);
 
   canva_retrieved->cd(3);
 
@@ -72,7 +83,7 @@ void analyze_histos() {
   std::cout << "\n NDF: " << uniform_dist->GetNDF();
   std::cout << "\n Chi/NDF: "
             << uniform_dist->GetChisquare() / uniform_dist->GetNDF();
-  std::cout << "\n Probability: " << uniform_dist->GetProb();
+  std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
   phi_histo->Draw();
@@ -113,9 +124,9 @@ void analyze_histos() {
   impulse_histo->GetXaxis()->SetTitle("Impulse [GeV/c]");
   impulse_histo->GetYaxis()->SetTitle("Number of occurrencies");
 
-  TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 30.);
+  TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 7.);
 
-  impulse_histo->Fit("exp", "q", "", 0., 30.);
+  impulse_histo->Fit("exp", "q", "", 0., 7.);
 
   TF1* fit_func = impulse_histo->GetFunction("exp");
 
@@ -128,7 +139,7 @@ void analyze_histos() {
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
-  std::cout << "--------------------- \n\n";
+  std::cout << "\n--------------------- \n\n";
 
   (impulse_histo->GetMean() - impulse_histo->GetMeanError() < 1. &&
    1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())
