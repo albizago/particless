@@ -4,6 +4,7 @@
 #include "TF1.h"
 #include "TFile.h"
 #include "TH2D.h"
+#include "TLegend.h"
 #include "TList.h"
 #include "TMath.h"
 #include "TROOT.h"
@@ -11,6 +12,8 @@
 
 void setStyle() {
   gROOT->SetStyle("Plain");
+  gStyle->SetOptStat(1111);
+  gStyle->SetOptFit(111);
   gStyle->SetPalette(57);
   gStyle->SetOptTitle(0);
 }
@@ -37,6 +40,8 @@ void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
 }
 
 void analyze_histos() {
+  setStyle();
+
   TFile* histos_file = new TFile("histos.root", "read");
   TList* histos_list = histos_file->Get<TList>("list");
 
@@ -60,19 +65,23 @@ void analyze_histos() {
   type->GetXaxis()->SetBinLabel(7, "K*");
   type->SetFillColor(kYellow);
 
-  type->Draw();
+  type->Draw("HIST");
 
   analyze_particle_type(type, proportions_array);
 
   canva_retrieved->cd(3);
 
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
+  uniform_dist->SetParName(0, "Normalization");
+  uniform_dist->SetLineColor(kBlue);
 
   TH1D* phi_histo = (TH1D*)histos_list->FindObject("phi");
-  phi_histo->SetTitle("Azimuthal Angle Distribution");
 
+  phi_histo->SetTitle("Azimuthal Angle Distribution");
   phi_histo->GetXaxis()->SetTitle("Azimuthal angle [rad]");
   phi_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  phi_histo->SetLineColorAlpha(kRed, 0.35);
+  phi_histo->SetFillColorAlpha(kRed, 0.35);
 
   phi_histo->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
 
@@ -86,18 +95,25 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
+  TLegend* legend_phi = new TLegend(0.62, 0.14, 0.99, 0.35);
+  legend_phi->AddEntry(phi_histo, "Data", "f");
+  legend_phi->AddEntry(uniform_dist, "Uniform distribution", "l");
+
   phi_histo->Draw();
   uniform_dist->Draw("SAME");
+  legend_phi->Draw("SAME");
 
   uniform_dist->SetRange(0., TMath::Pi());
 
   canva_retrieved->cd(4);
 
   TH1D* theta_histo = (TH1D*)histos_list->FindObject("theta");
-  theta_histo->SetTitle("Polar Angle Distribution");
 
+  theta_histo->SetTitle("Polar Angle Distribution");
   theta_histo->GetXaxis()->SetTitle("Polar angle [rad]");
   theta_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  theta_histo->SetLineColorAlpha(kRed, 0.35);
+  theta_histo->SetFillColorAlpha(kRed, 0.35);
 
   theta_histo->Fit(uniform_dist, "q", "", 0., TMath::Pi());
 
@@ -111,24 +127,35 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
+  TLegend* legend_theta = new TLegend(0.62, 0.14, 0.99, 0.35);
+  legend_theta->AddEntry(theta_histo, "Data", "f");
+  legend_theta->AddEntry(uniform_dist, "Uniform distribution", "l");
+
   theta_histo->Draw();
   uniform_dist->Draw("SAME");
+  legend_theta->Draw("SAME");
 
   // Retrieving impulse histogram
 
   canva_retrieved->cd(2);
 
   TH1D* impulse_histo = (TH1D*)histos_list->FindObject("impulse");
-  impulse_histo->SetTitle("Distribution of particles' impulse");
 
+  impulse_histo->SetTitle("Distribution of particles' impulse");
   impulse_histo->GetXaxis()->SetTitle("Impulse [GeV/c]");
   impulse_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  impulse_histo->SetLineColor(kBlue);
+  impulse_histo->SetLineColorAlpha(kBlue, 0.35);
+  impulse_histo->SetFillColorAlpha(kBlue, 0.35);
 
   TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 7.);
+  exp_dist->SetParName(0, "Normalization");
+  exp_dist->SetParName(1, "#tau");
 
   impulse_histo->Fit("exp", "q", "", 0., 7.);
 
   TF1* fit_func = impulse_histo->GetFunction("exp");
+  fit_func->SetLineColor(kRed);
 
   std::cout << "\n IMPULSE -- FIT FUNCTION\n";
   std::cout << "\n Parameter 0 (normalization): " << fit_func->GetParameter(0)
@@ -146,8 +173,13 @@ void analyze_histos() {
       ? std::cout << "\n Va bene lo stessoooo \n"
       : std::cout << "\n Problemi con exp \n";
 
+  TLegend* legend_impulse = new TLegend(0.62, 0.20, 0.99, 0.42);
+  legend_impulse->AddEntry(impulse_histo, "Data", "f");
+  legend_impulse->AddEntry(fit_func, "Uniform distribution", "l");
+
   impulse_histo->Draw();
   fit_func->Draw("SAME");
+  legend_impulse->Draw("SAME");
 
   // K* RESONANCE
 
@@ -178,16 +210,27 @@ void analyze_histos() {
 
   diff1_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   diff1_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  diff1_histo->SetLineColorAlpha(kGreen + 2, 0.35);
+  diff1_histo->SetFillColorAlpha(kGreen + 2, 0.35);
 
   TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
   gauss_dist->SetParameters(0.5, 0.8, 0.05);
+  gauss_dist->SetParName(0, "Normalization");
+  gauss_dist->SetParName(1, "Mean");
+  gauss_dist->SetParName(2, "#sigma");
 
   diff1_histo->Fit("gauss", "q", "", 0., 7.);
 
   fit_func = diff1_histo->GetFunction("gauss");
+  fit_func->SetLineColor(kRed);
+
+  TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
+  legend_diff1->AddEntry(diff1_histo, "Experimental Points", "f");
+  legend_diff1->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
 
   diff1_histo->Draw();
-  fit_func->Draw("same");
+  fit_func->Draw("SAME");
+  legend_diff1->Draw("SAME");
 
   std::cout << "\n ALL PARTICLES DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
@@ -217,10 +260,13 @@ void analyze_histos() {
 
   diff2_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   diff2_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  diff2_histo->SetLineColorAlpha(kGreen + 2, 0.35);
+  diff2_histo->SetFillColorAlpha(kGreen + 2, 0.35);
 
   // Fitting with gaussian distribution
 
   diff2_histo->Fit("gauss", "q", "", 0., 7.);
+
   fit_func = diff2_histo->GetFunction("gauss");
 
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
@@ -236,19 +282,31 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "--------------------- \n\n";
 
+  TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
+  legend_diff2->AddEntry(diff2_histo, "Experimental Points", "f");
+  legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
+
   diff2_histo->Draw();
-  fit_func->Draw("same");
+  fit_func->Draw("SAME");
+  legend_diff2->Draw("SAME");
 
   canva_k_star->cd(3);
 
   kstar_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   kstar_histo->GetYaxis()->SetTitle("Number of occurrencies");
+  kstar_histo->SetLineColorAlpha(kMagenta - 7, 0.35);
+  kstar_histo->SetFillColorAlpha(kMagenta - 7, 0.35);
 
   kstar_histo->Fit("gauss", "q", "", 0., 2.);
   fit_func = kstar_histo->GetFunction("gauss");
 
+  TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
+  legend_kstar->AddEntry(kstar_histo, "Expected Points", "f");
+  legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
+
   kstar_histo->Draw();
-  fit_func->Draw("same");
+  fit_func->Draw("SAME");
+  legend_kstar->Draw("SAME");
 
   // Output files
 

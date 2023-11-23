@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   std::cout << "K* decay simulation \n\n";
 
   const Int_t n_types = 7;
-  const Double_t n_events = 1E3;
+  const Double_t n_events = 1E5;
 
   // Particle types
 
