@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   std::cout << "K* decay simulation \n\n";
 
   const Int_t n_types = 7;
-  const Double_t n_events = 1E3;
+  const Double_t n_events = 1E5;
 
   // Particle types
 
@@ -69,15 +69,15 @@ int main(int argc, char** argv) {
       new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
 
   // Histo containing momentum modules
-  TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 30);
+  TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 7.);
 
   // Histo containing tranverse impulse
   TH1D* transv_impulse_histo =
-      new TH1D("t_impulse", "Tranverse impulse", 1000, 0, 30);
+      new TH1D("t_impulse", "Tranverse impulse", 1000, 0, 7.);
 
   // Histo containing energy of particles
   TH1D* energy_histo =
-      new TH1D("energy", "Energy of generated particles", 1000, 0, 50);
+      new TH1D("energy", "Energy of generated particles", 1000, 0, 7.);
 
   // Histo containing invariant mass of all particles of opposite sign charges
   TH1D* inv_mass_disc_histo =
