@@ -8,6 +8,8 @@ ParticleType::ParticleType(std::string const& name, double mass, int charge)
     throw std::runtime_error("Invalid input");
 }
 
+ParticleType::ParticleType() : fName(""), fMass(0.), fCharge(0) {}
+
 std::string const& ParticleType::GetName() const { return fName; }
 
 double ParticleType::GetMass() const { return fMass; }

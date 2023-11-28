@@ -11,7 +11,7 @@ namespace pt {
 class ParticleType {
  public:
   ParticleType(std::string const&, double, int);
-  ParticleType() = default;
+  ParticleType();
 
   std::string const& GetName() const;
   double GetMass() const;

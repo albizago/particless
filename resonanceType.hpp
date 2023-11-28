@@ -8,7 +8,7 @@ namespace pt {
 class ResonanceType : public ParticleType {
  public:
   ResonanceType(std::string const&, double, int, double);
-  ResonanceType() = default;
+  ResonanceType();
 
   double GetWidth() const;
 
