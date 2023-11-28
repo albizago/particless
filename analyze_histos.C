@@ -15,7 +15,26 @@ void setStyle() {
   gStyle->SetOptStat(1111);
   gStyle->SetOptFit(111);
   gStyle->SetPalette(57);
-  gStyle->SetOptTitle(0);
+  gStyle->SetOptTitle(1);
+}
+
+void cleanUp() {
+  delete gROOT->FindObject("canva_retrieved");
+  delete gROOT->FindObject("canva_k_star");
+  delete gROOT->FindObject("type");
+  delete gROOT->FindObject("phi");
+  delete gROOT->FindObject("theta");
+  delete gROOT->FindObject("impulse");
+  delete gROOT->FindObject("inv_mass_disc");
+  delete gROOT->FindObject("inv_mass_conc");
+  delete gROOT->FindObject("inv_mass_pk0");
+  delete gROOT->FindObject("inv_mass_pk1");
+  delete gROOT->FindObject("inv_mass_kstar");
+  delete gROOT->FindObject("list");
+  delete gROOT->FindObject("prop_arr");
+  delete gROOT->FindObject("unif");
+  delete gROOT->FindObject("gauss");
+  delete gROOT->FindObject("exp");
 }
 
 void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
@@ -33,7 +52,7 @@ void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
      prop_array->At(i) * n_generations <
          (histo->GetBinContent(i + 1) + histo->GetBinError(i + 1)))
         ? std::cout << "Expectation confirmed\n\n"
-        : std::cout << "Something went wrong. Check visually\n";
+        : std::cout << "Something went wrong. Visual check suggested\n\n";
   }
 
   std::cout << "\n--------------------- \n\n";
@@ -41,6 +60,7 @@ void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
 
 void analyze_histos() {
   setStyle();
+  cleanUp();
 
   TFile* histos_file = new TFile("histos.root", "read");
   TList* histos_list = histos_file->Get<TList>("list");
@@ -310,11 +330,11 @@ void analyze_histos() {
 
   // Output files
 
-  TFile* data_out_pdf = new TFile("data.pdf", "recreate");
-  canva_retrieved->Write();
-  canva_k_star->Write();
+  //TFile* data_out_pdf = new TFile("data.pdf", "recreate");
+  canva_retrieved->Print("data.pdf(", "Title:Canva retrieved");
+  canva_k_star->Print("data.pdf)", "Title:Canva k star");
 
-  data_out_pdf->Close();
+  //data_out_pdf->Close();
 
   TFile* data_out_root = new TFile("data.root", "recreate");
 
