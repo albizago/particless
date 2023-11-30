@@ -13,7 +13,7 @@
 void setStyle() {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(1111);
-  gStyle->SetOptFit(111);
+  gStyle->SetOptFit(1011);
   gStyle->SetPalette(57);
   gStyle->SetOptTitle(1);
 }
@@ -186,12 +186,12 @@ void analyze_histos() {
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
-  std::cout << "\n--------------------- \n\n";
 
   (impulse_histo->GetMean() - impulse_histo->GetMeanError() < 1. &&
    1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())
-      ? std::cout << "\n Va bene lo stessoooo \n"
-      : std::cout << "\n Problemi con exp \n";
+      ? std::cout << "\nExpectation confirmed \n"
+      : std::cout << "\nSomething went wrong. Visual check suggested \n";
+  std::cout << "\n--------------------- \n\n";
 
   TLegend* legend_impulse = new TLegend(0.62, 0.20, 0.99, 0.42);
   legend_impulse->AddEntry(impulse_histo, "Data", "f");
@@ -263,7 +263,7 @@ void analyze_histos() {
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
-  std::cout << "--------------------- \n\n";
+  std::cout << "\n--------------------- \n\n";
   // std::cout << gauss_dist->Eval(0.88);
 
   // Difference between invariant masses of pions and kaons of opposite charges
@@ -300,7 +300,7 @@ void analyze_histos() {
   std::cout << "\n NDF: " << fit_func->GetNDF();
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
-  std::cout << "--------------------- \n\n";
+  std::cout << "\n--------------------- \n\n";
 
   TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_diff2->AddEntry(diff2_histo, "Experimental Points", "f");
@@ -320,6 +320,20 @@ void analyze_histos() {
   kstar_histo->Fit("gauss", "q", "", 0., 2.);
   fit_func = kstar_histo->GetFunction("gauss");
 
+  std::cout << "\n K* BENCHMARK HISTOGRAM -- GAUSSIAN FIT FUNCTION\n";
+  std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
+            << fit_func->GetParError(0);
+  std::cout << "\n Parameter 1 (average): " << fit_func->GetParameter(1)
+            << " +- " << fit_func->GetParError(1);
+  std::cout << "\n Parameter 2 (RMS): " << fit_func->GetParameter(2) << " +- "
+            << fit_func->GetParError(2);
+  std::cout << "\n Chi square: " << fit_func->GetChisquare();
+  std::cout << "\n NDF: " << fit_func->GetNDF();
+  std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
+  std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
+  std::cout << "\n--------------------- \n\n";
+
+
   TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_kstar->AddEntry(kstar_histo, "Expected Points", "f");
   legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
@@ -330,11 +344,11 @@ void analyze_histos() {
 
   // Output files
 
-  //TFile* data_out_pdf = new TFile("data.pdf", "recreate");
+  // TFile* data_out_pdf = new TFile("data.pdf", "recreate");
   canva_retrieved->Print("data.pdf(", "Title:Canva retrieved");
   canva_k_star->Print("data.pdf)", "Title:Canva k star");
 
-  //data_out_pdf->Close();
+  // data_out_pdf->Close();
 
   TFile* data_out_root = new TFile("data.root", "recreate");
 
