@@ -82,6 +82,9 @@ void analyze_histos() {
   canva_retrieved->Divide(2, 2);
 
   canva_retrieved->cd(1);
+
+  // Types histogram labelling and drawing
+
   type->GetYaxis()->SetTitle("Number of generated particles");
   type->GetXaxis()->SetTitle("Particle type");
   type->GetXaxis()->SetBinLabel(1, "Pion +");
@@ -95,13 +98,18 @@ void analyze_histos() {
 
   type->Draw("HIST");
 
+  // Call function to verify compliance with expected proportions
   analyze_particle_type(type, proportions_array);
 
   canva_retrieved->cd(3);
 
+  // Uniform distribution function for fit
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
   uniform_dist->SetParName(0, "Normalization");
   uniform_dist->SetLineColor(kBlue);
+
+  // Retrieve and label azimuthal and polar angles histograms
+  // fit uniform distribution to each and draw everything
 
   TH1D* phi_histo = (TH1D*)histos_list->FindObject("phi");
 
@@ -123,6 +131,7 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
+  // Add legend
   TLegend* legend_phi = new TLegend(0.62, 0.14, 0.99, 0.35);
   legend_phi->AddEntry(phi_histo, "Data", "f");
   legend_phi->AddEntry(uniform_dist, "Uniform distribution", "l");
@@ -131,6 +140,7 @@ void analyze_histos() {
   uniform_dist->Draw("SAME");
   legend_phi->Draw("SAME");
 
+  // adjust fitting function range
   uniform_dist->SetRange(0., TMath::Pi());
 
   canva_retrieved->cd(4);
@@ -155,6 +165,7 @@ void analyze_histos() {
   std::cout << "\n Probability: " << uniform_dist->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
+  // Add legend
   TLegend* legend_theta = new TLegend(0.62, 0.14, 0.99, 0.35);
   legend_theta->AddEntry(theta_histo, "Data", "f");
   legend_theta->AddEntry(uniform_dist, "Uniform distribution", "l");
@@ -163,7 +174,8 @@ void analyze_histos() {
   uniform_dist->Draw("SAME");
   legend_theta->Draw("SAME");
 
-  // Retrieving impulse histogram
+  // Retrieve and label impulse histogram, 
+  // fit exponential distribution and draw everything
 
   canva_retrieved->cd(2);
 
@@ -195,12 +207,14 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
 
+  // Check if average is compatible with 1 GeV/c
   (impulse_histo->GetMean() - impulse_histo->GetMeanError() < 1. &&
    1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())
       ? std::cout << "\nExpectation confirmed \n"
       : std::cout << "\nSomething went wrong. Visual check suggested \n";
   std::cout << "\n--------------------- \n\n";
 
+  // Add legend
   TLegend* legend_impulse = new TLegend(0.62, 0.20, 0.99, 0.42);
   legend_impulse->AddEntry(impulse_histo, "Data", "f");
   legend_impulse->AddEntry(fit_func, "Uniform distribution", "l");
@@ -209,9 +223,9 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_impulse->Draw("SAME");
 
-  // K* RESONANCE
+  // -------- K* RESONANCE ANALYSIS --------
 
-  // Retrieving invariant masses histograms
+  // Retrieve invariant masses histograms
 
   TCanvas* canva_k_star =
       new TCanvas("canva_k_star", "K* Resonance Analysis", 200, 10, 600, 400);
@@ -223,17 +237,19 @@ void analyze_histos() {
   TH1D* conc_pk_histo = (TH1D*)histos_list->FindObject("inv_mass_pk1");
   TH1D* kstar_histo = (TH1D*)histos_list->FindObject("inv_mass_kstar");
 
+  // Close read file
   histos_file->Close();
 
   canva_k_star->cd(2);
 
-  // Difference between invariant masses of all particles of opposite charge and
-  // all particles of same charge
+  // Difference histograms between invariant masses of all particles of opposite charge 
+  // and all particles of same charge
 
   TH1D* diff1_histo = new TH1D(*disc_histo);
   diff1_histo->SetTitle(
       "Difference between distribution of invariant masses of all particles of "
       "opposite charge and all particles of same charge");
+  
   diff1_histo->Add(disc_histo, conc_histo, 1., -1.);
 
   diff1_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
@@ -241,6 +257,7 @@ void analyze_histos() {
   diff1_histo->SetLineColorAlpha(kGreen + 2, 0.35);
   diff1_histo->SetFillColorAlpha(kGreen + 2, 0.35);
 
+  // Fit gaussian distribution function 
   TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
   gauss_dist->SetParameters(0.5, 0.8, 0.05);
   gauss_dist->SetParName(0, "Normalization");
@@ -252,6 +269,7 @@ void analyze_histos() {
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
 
+  // Add legend
   TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_diff1->AddEntry(diff1_histo, "Experimental Points", "f");
   legend_diff1->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
@@ -260,6 +278,7 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_diff1->Draw("SAME");
 
+  // Print fit function parameters and Chi square data
   std::cout << "\n ALL PARTICLES DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
             << fit_func->GetParError(0);
@@ -272,10 +291,9 @@ void analyze_histos() {
   std::cout << "\n Chi/NDF: " << fit_func->GetChisquare() / fit_func->GetNDF();
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
-  // std::cout << gauss_dist->Eval(0.88);
 
-  // Difference between invariant masses of pions and kaons of opposite charges
-  // and of same charges
+  // Difference histogram between invariant masses of pions and kaons of opposite charges
+  // and of same charge
 
   canva_k_star->cd(3);
 
@@ -284,6 +302,7 @@ void analyze_histos() {
       "Difference between distribution of invariant masses "
       "of pions and kaons of opposite charges and of same "
       "charges");
+
   diff2_histo->Add(disc_pk_histo, conc_pk_histo, 1., -1.);
 
   diff2_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
@@ -297,6 +316,7 @@ void analyze_histos() {
 
   fit_func = diff2_histo->GetFunction("gauss");
 
+  // Print fit function parameters and Chi square data
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
             << fit_func->GetParError(0);
@@ -310,6 +330,7 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
+  // Add legend
   TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_diff2->AddEntry(diff2_histo, "Experimental Points", "f");
   legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
@@ -320,14 +341,18 @@ void analyze_histos() {
 
   canva_k_star->cd(1);
 
+  // Fit and draw K* decay products histogram
+
   kstar_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   kstar_histo->GetYaxis()->SetTitle("Number of occurrencies");
   kstar_histo->SetLineColorAlpha(kMagenta - 7, 0.35);
   kstar_histo->SetFillColorAlpha(kMagenta - 7, 0.35);
 
+  // fit gaussian function
   kstar_histo->Fit("gauss", "q", "", 0., 2.);
   fit_func = kstar_histo->GetFunction("gauss");
 
+  // Print fit function parameters and Chi square data
   std::cout << "\n K* BENCHMARK HISTOGRAM -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
             << fit_func->GetParError(0);
@@ -341,7 +366,7 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
-
+  // Add legend
   TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_kstar->AddEntry(kstar_histo, "Expected Points", "f");
   legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
@@ -350,14 +375,13 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_kstar->Draw("SAME");
 
-  // Output files
+  // ---- OUTPUT FILES ----
 
-  // TFile* data_out_pdf = new TFile("data.pdf", "recreate");
+  // PDF Output
   canva_retrieved->Print("data.pdf(", "Title:Canva retrieved");
   canva_k_star->Print("data.pdf)", "Title:Canva k star");
 
-  // data_out_pdf->Close();
-
+  // ROOT Output
   TFile* data_out_root = new TFile("data.root", "recreate");
 
   canva_retrieved->Write();
@@ -365,6 +389,7 @@ void analyze_histos() {
 
   data_out_root->Close();
 
+  // C Output
   TFile* data_out_c = new TFile("data.C", "recreate");
 
   canva_retrieved->Write();

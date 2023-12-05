@@ -82,6 +82,8 @@ int main(int argc, char** argv) {
   TH1D* energy_histo =
       new TH1D("energy", "Energy of generated particles", 1000, 0, 7.);
 
+  // --- Method 'Sumw2()' is called on following histograms for future error calculations ---
+
   // Histogram containing invariant mass of all particles of opposite sign
   // charges
   TH1D* inv_mass_disc_histo =
