@@ -14,14 +14,16 @@
 #include "particle.hpp"
 
 int main(int argc, char** argv) {
+  // create ROOT application object for external compilation
   TApplication app("ROOT Application", &argc, argv);
 
-  std::cout << "K* decay simulation \n\n";
+  std::cout << " ---- K* decay simulation ----\n\n";
 
+  // Declare and initialize number of types and number of simulated events
   const Int_t n_types = 7;
   const Double_t n_events = 1E5;
 
-  // Particle types
+  // Add Particle types with respective mass and charge
 
   pt::Particle::AddParticleType("pion+", 0.13957, 1);
   pt::Particle::AddParticleType("pion-", 0.13957, -1);
@@ -31,12 +33,15 @@ int main(int argc, char** argv) {
   pt::Particle::AddParticleType("proton-", 0.93827, -1);
   pt::Particle::AddParticleType("k*", 0.89166, 0, 0.05);
 
-  // Proportions of generated particles
+  // ROOT double Array to store proportions of generated particles
+  // and number of events
 
   TArrayD* prop_arr = new TArrayD(n_types + 1);
 
+  // store number of events in last position
   prop_arr->SetAt(n_events, n_types);
 
+  // store proportions of generated particles
   prop_arr->SetAt(0.4, 0);
   prop_arr->SetAt(0.4, 1);
   prop_arr->SetAt(0.05, 2);
@@ -45,106 +50,118 @@ int main(int argc, char** argv) {
   prop_arr->SetAt(0.045, 5);
   prop_arr->SetAt(0.01, 6);
 
+  // Confirmation message
   std::cout << "Particle Types generated\n";
 
+  // Set seed of random number generator
   gRandom->SetSeed();
 
+  // Initialize array of particles to use for each event
   std::array<pt::Particle, 130> EventParticles;
 
-  // Histograms generation...
+  // --------------- HISTOGRAM GENERATION ---------------
 
-  // Histo containing the proportions of generated particle TYPES
+  // Histogram containing the proportions of generated particle types
   TH1I* type_histo =
       new TH1I("type", "Types of generated particles", n_types, 0, n_types);
 
-  // 2D Histo containing particle's momentum directions
-  /*TH2D* angle_histo =
-      new TH2D("angles", "Azimutal and polar angles of momentum", 360, 0.,
-               2 * TMath::Pi(), 180, 0., TMath::Pi());
-  */
-
+  // Histogram containing
   TH1D* phi_histo =
       new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
   TH1D* theta_histo =
       new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
 
-  // Histo containing momentum modules
-  TH1D* impulse_histo = new TH1D("impulse", "Module of momentum", 1000, 0, 7.);
+  // Histogram containing particles' impulse modulus
+  TH1D* impulse_histo = new TH1D("impulse", "Modulus of impulse", 1000, 0, 7.);
 
-  // Histo containing tranverse impulse
+  // Histogram containing tranverse impulse of particles
   TH1D* transv_impulse_histo =
       new TH1D("t_impulse", "Tranverse impulse", 1000, 0, 7.);
 
-  // Histo containing energy of particles
+  // Histogram containing energy of particles
   TH1D* energy_histo =
       new TH1D("energy", "Energy of generated particles", 1000, 0, 7.);
 
-  // Histo containing invariant mass of all particles of opposite sign charges
+  // Histogram containing invariant mass of all particles of opposite sign
+  // charges
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
                "Invariant mass of oppositely charged particles", 5000, 0, 7.5);
   inv_mass_disc_histo->Sumw2();
 
-  // Histo containing invariant mass of all particles of same sign charges
+  // Histogram containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
                "Invariant mass of identically charged particles", 5000, 0, 7.5);
   inv_mass_conc_histo->Sumw2();
 
-  // Histo containing invariant mass of opposite charge pions and kaons
+  // Histogram containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
       new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 5000, 0, 7.5);
   inv_mass_pk0_histo->Sumw2();
 
-  // Histo containing invariant mass of same charge pions and kaons
+  // Histogram containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
       new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 5000, 0, 7.5);
   inv_mass_pk1_histo->Sumw2();
 
-  // Histo containing invariant mass of products of k* decays
+  // Histogram containing invariant mass of products of k* decays
   TH1D* inv_mass_kstar_histo = new TH1D(
       "inv_mass_kstar", "Invariant mass of products of K* decay", 5000, 0, 1.5);
   inv_mass_kstar_histo->Sumw2();
 
+  // Confirmation message
   std::cout << "Histogram generated\n\n";
 
-  Double_t phi;
-  Double_t theta;
-  Double_t p_mod;  // modulus
-  Impulse p_gen;   // vector
+  // Variables to store generated values
 
-  Double_t rndm_idx;
+  Double_t phi;    // azimutal angle
+  Double_t theta;  // polar angle
+  Double_t p_mod;  // impulse modulus
+  Impulse p_gen;   // impulse vector
 
+  Double_t rndm_idx;  // random index to assign particle type
+
+  Int_t decay_idx = 0;
+  // index to store decay products past the 100th position of the array
+
+  // ROOT Benchmark to evaluate code performance
   TBenchmark time;
 
+  // Notification message
   std::cout << "Event generation and histogram filling begun...\n";
 
+  // Start benchmark
   time.Start("Event generation and histogram filling");
 
   // Particle generation and histogram filling
 
   for (Int_t i = 0; i < n_events; ++i) {
-    Int_t decay_idx = 0;
+    decay_idx = 0;
     for (Int_t j = 0; j < 100; ++j) {
-      // random polar variables
+      // Generate angles according to uniform dist
       phi = gRandom->Uniform(0., 2 * TMath::Pi());
       theta = gRandom->Uniform(0., TMath::Pi());
+
+      // Generate impulse modulus according to exponential dist
       p_mod = gRandom->Exp(1.);
+
+      // Compute impluse vector components
       p_gen.fPx = p_mod * TMath::Sin(theta) * TMath::Cos(phi);
       p_gen.fPy = p_mod * TMath::Sin(theta) * TMath::Sin(phi);
       p_gen.fPz = p_mod * TMath::Cos(theta);
 
-      // fill histos
-      // angle_histo->Fill(phi, theta);
+      // Fill angles, impulse and transverse impulse histos
       phi_histo->Fill(phi);
       theta_histo->Fill(theta);
       impulse_histo->Fill(p_mod);
       transv_impulse_histo->Fill(
           TMath::Sqrt(p_gen.fPx * p_gen.fPx + p_gen.fPy * p_gen.fPy));
 
+      // Assign randomly particle type according to proportions
+
       rndm_idx = gRandom->Rndm();
 
-      // random type assignment
       if (rndm_idx < prop_arr->GetAt(0)) {
         EventParticles[j].SetIndex("pion+");
         EventParticles[j].SetP(p_gen);
@@ -172,6 +189,8 @@ int main(int argc, char** argv) {
       } else {
         EventParticles[j].SetIndex("k*");
         EventParticles[j].SetP(p_gen);
+
+        // Generate decay products of K* and store them in the array
         rndm_idx = gRandom->Rndm();
 
         if (rndm_idx < 0.5) {
@@ -186,8 +205,11 @@ int main(int argc, char** argv) {
                                        EventParticles[101 + decay_idx]);
         }
 
+        // fill invariant mass of decay products histo
         inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
             EventParticles[101 + decay_idx]));
+
+        // move decay index forward
         decay_idx += 2;
       }
 
@@ -209,8 +231,7 @@ int main(int argc, char** argv) {
               (EventParticles[a].GetIndex() == 1 &&
                EventParticles[b].GetIndex() == 2) ||
               (EventParticles[a].GetIndex() == 2 &&
-               EventParticles[b].GetIndex() == 1)
-          ) {
+               EventParticles[b].GetIndex() == 1)) {
             inv_mass_pk0_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
@@ -234,6 +255,7 @@ int main(int argc, char** argv) {
             inv_mass_pk1_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
+
           // Fill histo of invariant mass of same sign charges
           inv_mass_conc_histo->Fill(
               EventParticles[a].InvMass(EventParticles[b]));
@@ -242,14 +264,18 @@ int main(int argc, char** argv) {
     }
   }
 
+  // Stop benchmark
   time.Stop("Event generation and histogram filling");
-  std::cout << "Event generation and histogram filling ended...\n";
+  // Confirmation message
+  std::cout << "Event generation and histogram filling ended\n";
+
+  // Print benchmark results
   time.Show("Event generation and histogram filling");
   std::cout << '\n';
 
+  // Store histos in ROOT List
   TList* list = new TList();
   list->Add(type_histo);
-  // list->Add(angle_histo);
   list->Add(phi_histo);
   list->Add(theta_histo);
   list->Add(impulse_histo);
@@ -261,7 +287,7 @@ int main(int argc, char** argv) {
   list->Add(inv_mass_pk1_histo);
   list->Add(inv_mass_kstar_histo);
 
-  // canva definition
+  // Canvas definition
 
   TCanvas* canva1 = new TCanvas("canva1", "Types, Angles, Energy and Impulse",
                                 200, 10, 800, 800);
@@ -271,9 +297,10 @@ int main(int argc, char** argv) {
       new TCanvas("canva2", "Invariant Masses", 200, 10, 800, 800);
   canva2->Divide(2, 3);
 
+  // Confirmation message
   std::cout << "Canvas created" << '\n';
 
-  // Drawing first five histograms (Types, Angles, Energy and Impulse)
+  // Draw first five histograms (Types, Angles, Energy and Impulse)
 
   canva1->cd();
   for (Int_t canva_idx = 1; canva_idx <= 6; ++canva_idx) {
@@ -281,31 +308,30 @@ int main(int argc, char** argv) {
     list->At(canva_idx - 1)->Draw();
   }
 
-  // Drawing last five histograms (Invariant Masses)
+  // Draw last five histograms (Invariant Masses)
   canva2->cd();
   for (Int_t canva_idx = 1; canva_idx <= 5; ++canva_idx) {
     canva2->cd(canva_idx);
     list->At(canva_idx + 5)->Draw();
   }
 
+  // Confirmation message
   std::cout << "Histos drawn \n";
 
-  // Creating root file and writing histos
+  // Create ROOT file and write List and Array of proportions 
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
   file->WriteObject(prop_arr, "prop_arr");
   file->WriteObject(list, "list");
 
-  // list->Write();
-  canva1->Write();
-  // canva2->Write();
-
   file->Close();
 
+  // Confirmation message
   std::cout << "Histos written to file '' histos.root '' " << '\n'
             << "Analyse in Root with analyze_histo.C macro\n";
 
+  // Run ROOT application
   app.Run();
   return 0;
 }

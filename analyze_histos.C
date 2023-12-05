@@ -10,6 +10,7 @@
 #include "TROOT.h"
 #include "TStyle.h"
 
+// function for cosmetics
 void setStyle() {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(1111);
@@ -18,6 +19,7 @@ void setStyle() {
   gStyle->SetOptTitle(1);
 }
 
+// function for cleaning up objects
 void cleanUp() {
   delete gROOT->FindObject("canva_retrieved");
   delete gROOT->FindObject("canva_k_star");
@@ -37,6 +39,7 @@ void cleanUp() {
   delete gROOT->FindObject("exp");
 }
 
+// function to analize particle types distribution
 void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
   std::cout << "ANALYZING PARTYCLE TYPES DISTRIBUTION \n\n";
   Int_t n_types = prop_array->GetSize() - 1;
@@ -58,16 +61,21 @@ void analyze_particle_type(TH1I* histo, TArrayD* prop_array) {
   std::cout << "\n--------------------- \n\n";
 }
 
+// macro body
 void analyze_histos() {
   setStyle();
   cleanUp();
 
+  // Retrieve list from file
   TFile* histos_file = new TFile("histos.root", "read");
   TList* histos_list = histos_file->Get<TList>("list");
 
+  // Retrieve types histogram (from list)
   TH1I* type = (TH1I*)histos_list->FindObject("type");
+  // Retrieve proportions array (from file)
   TArrayD* proportions_array = histos_file->Get<TArrayD>("prop_arr");
 
+  // Create canva for retrieved histograms (Types, Impulse and Angles)
   TCanvas* canva_retrieved = new TCanvas(
       "canva_retrieved", "Types proportions, Impulse and Angles distributions",
       200, 10, 600, 400);
@@ -217,7 +225,7 @@ void analyze_histos() {
 
   histos_file->Close();
 
-  canva_k_star->cd(1);
+  canva_k_star->cd(2);
 
   // Difference between invariant masses of all particles of opposite charge and
   // all particles of same charge
@@ -269,7 +277,7 @@ void analyze_histos() {
   // Difference between invariant masses of pions and kaons of opposite charges
   // and of same charges
 
-  canva_k_star->cd(2);
+  canva_k_star->cd(3);
 
   TH1D* diff2_histo = new TH1D(*disc_pk_histo);
   diff2_histo->SetTitle(
@@ -310,7 +318,7 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_diff2->Draw("SAME");
 
-  canva_k_star->cd(3);
+  canva_k_star->cd(1);
 
   kstar_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   kstar_histo->GetYaxis()->SetTitle("Number of occurrencies");

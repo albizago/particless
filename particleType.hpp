@@ -10,13 +10,17 @@ namespace pt {
 
 class ParticleType {
  public:
+  // constructors
   ParticleType(std::string const&, double, int);
   ParticleType();
 
+  // getters
   std::string const& GetName() const;
   double GetMass() const;
   int GetCharge() const;
   virtual double GetWidth() const;
+
+  // Print member function
   virtual void Print() const;
 
  private:

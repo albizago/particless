@@ -7,11 +7,14 @@ namespace pt {
 
 class ResonanceType : public ParticleType {
  public:
+  // constructors
   ResonanceType(std::string const&, double, int, double);
   ResonanceType();
 
+  // getters
   double GetWidth() const;
 
+  // Print member function
   void Print() const;
 
  private:
