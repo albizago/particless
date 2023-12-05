@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   // Proportions of generated particles
 
   TArrayD* prop_arr = new TArrayD(n_types + 1);
-  
+
   prop_arr->SetAt(n_events, n_types);
 
   prop_arr->SetAt(0.4, 0);
@@ -202,10 +202,15 @@ int main(int argc, char** argv) {
       for (Int_t b = a + 1; b < 100 + decay_idx; ++b) {
         if (EventParticles[a].GetCharge() * EventParticles[b].GetCharge() < 0) {
           // Fill histo of pions and kaons with opposite charges
-          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                  0.633245 &&
-              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                  0.633235) {
+          if ((EventParticles[a].GetIndex() == 0 &&
+               EventParticles[b].GetIndex() == 3) ||
+              (EventParticles[a].GetIndex() == 3 &&
+               EventParticles[b].GetIndex() == 0) ||
+              (EventParticles[a].GetIndex() == 1 &&
+               EventParticles[b].GetIndex() == 2) ||
+              (EventParticles[a].GetIndex() == 2 &&
+               EventParticles[b].GetIndex() == 1)
+          ) {
             inv_mass_pk0_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
           }
@@ -217,10 +222,14 @@ int main(int argc, char** argv) {
         } else if (EventParticles[a].GetCharge() *
                        EventParticles[b].GetCharge() >
                    0) {
-          if (EventParticles[a].GetMass() + EventParticles[b].GetMass() <
-                  0.633245 &&
-              EventParticles[a].GetMass() + EventParticles[b].GetMass() >
-                  0.633235) {
+          if ((EventParticles[a].GetIndex() == 0 &&
+               EventParticles[b].GetIndex() == 2) ||
+              (EventParticles[a].GetIndex() == 2 &&
+               EventParticles[b].GetIndex() == 0) ||
+              (EventParticles[a].GetIndex() == 1 &&
+               EventParticles[b].GetIndex() == 3) ||
+              (EventParticles[a].GetIndex() == 3 &&
+               EventParticles[b].GetIndex() == 1)) {
             // Fill histo of pions and kaons with same charges
             inv_mass_pk1_histo->Fill(
                 EventParticles[a].InvMass(EventParticles[b]));
@@ -237,11 +246,6 @@ int main(int argc, char** argv) {
   std::cout << "Event generation and histogram filling ended...\n";
   time.Show("Event generation and histogram filling");
   std::cout << '\n';
-
-  /* std::cout << inv_mass_conc_histo->GetBinContent(1001) << '\n';
-  std::cout << inv_mass_disc_histo->GetBinContent(1001) << '\n';
-  std::cout << inv_mass_pk0_histo->GetBinContent(1001) << '\n';
-  std::cout << inv_mass_pk1_histo->GetBinContent(1001) << '\n'; */
 
   TList* list = new TList();
   list->Add(type_histo);
