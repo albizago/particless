@@ -107,6 +107,7 @@ void analyze_histos() {
   TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
   uniform_dist->SetParName(0, "Normalization");
   uniform_dist->SetLineColor(kBlue);
+  uniform_dist->SetLineWidth(1);
 
   // Retrieve and label azimuthal and polar angles histograms
   // fit uniform distribution to each and draw everything
@@ -174,7 +175,7 @@ void analyze_histos() {
   uniform_dist->Draw("SAME");
   legend_theta->Draw("SAME");
 
-  // Retrieve and label impulse histogram, 
+  // Retrieve and label impulse histogram,
   // fit exponential distribution and draw everything
 
   canva_retrieved->cd(2);
@@ -196,6 +197,7 @@ void analyze_histos() {
 
   TF1* fit_func = impulse_histo->GetFunction("exp");
   fit_func->SetLineColor(kRed);
+  fit_func->SetLineWidth(1);
 
   std::cout << "\n IMPULSE -- FIT FUNCTION\n";
   std::cout << "\n Parameter 0 (normalization): " << fit_func->GetParameter(0)
@@ -242,14 +244,14 @@ void analyze_histos() {
 
   canva_k_star->cd(2);
 
-  // Difference histograms between invariant masses of all particles of opposite charge 
-  // and all particles of same charge
+  // Difference histograms between invariant masses of all particles of opposite
+  // charge and all particles of same charge
 
   TH1D* diff1_histo = new TH1D(*disc_histo);
   diff1_histo->SetTitle(
       "Difference between distribution of invariant masses of all particles of "
       "opposite charge and all particles of same charge");
-  
+
   diff1_histo->Add(disc_histo, conc_histo, 1., -1.);
 
   diff1_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
@@ -257,17 +259,18 @@ void analyze_histos() {
   diff1_histo->SetLineColorAlpha(kGreen + 2, 0.35);
   diff1_histo->SetFillColorAlpha(kGreen + 2, 0.35);
 
-  // Fit gaussian distribution function 
+  // Fit gaussian distribution function
   TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
   gauss_dist->SetParameters(0.5, 0.8, 0.05);
-  gauss_dist->SetParName(0, "Normalization");
-  gauss_dist->SetParName(1, "Mean");
-  gauss_dist->SetParName(2, "#sigma");
+  gauss_dist->SetParName(0, "Fit Normalization");
+  gauss_dist->SetParName(1, "Fit Mean");
+  gauss_dist->SetParName(2, "Fit #sigma");
 
   diff1_histo->Fit("gauss", "q", "", 0., 7.);
 
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
+  fit_func->SetLineWidth(1);
 
   // Add legend
   TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
@@ -292,8 +295,8 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
-  // Difference histogram between invariant masses of pions and kaons of opposite charges
-  // and of same charge
+  // Difference histogram between invariant masses of pions and kaons of
+  // opposite charges and of same charge
 
   canva_k_star->cd(3);
 
@@ -315,6 +318,8 @@ void analyze_histos() {
   diff2_histo->Fit("gauss", "q", "", 0., 7.);
 
   fit_func = diff2_histo->GetFunction("gauss");
+  fit_func->SetLineColor(kRed);
+  fit_func->SetLineWidth(1);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
@@ -351,6 +356,8 @@ void analyze_histos() {
   // fit gaussian function
   kstar_histo->Fit("gauss", "q", "", 0., 2.);
   fit_func = kstar_histo->GetFunction("gauss");
+  fit_func->SetLineColor(kBlack);
+  fit_func->SetLineWidth(1);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n K* BENCHMARK HISTOGRAM -- GAUSSIAN FIT FUNCTION\n";
