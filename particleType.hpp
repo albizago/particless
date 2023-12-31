@@ -1,23 +1,30 @@
 #ifndef PARTICLETYPE_HPP
 #define PARTICLETYPE_HPP
 
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
-#include <iomanip>
+#include <string>
 
 namespace pt {
 
 class ParticleType {
  public:
-  ParticleType(char*, double, int);
-  ParticleType() = default;
-  const char* getName() const;
-  double getMass() const;
-  int getCharge() const;
+  // constructors
+  ParticleType(std::string const&, double, int);
+  ParticleType();
+
+  // getters
+  std::string const& GetName() const;
+  double GetMass() const;
+  int GetCharge() const;
+  virtual double GetWidth() const;
+
+  // Print member function
   virtual void Print() const;
 
  private:
-  const char* fName;
+  const std::string fName;
   const double fMass;
   const int fCharge;
 };

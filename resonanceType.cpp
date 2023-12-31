@@ -2,15 +2,20 @@
 
 namespace pt {
 
-ResonanceType::ResonanceType(char* name, double mass, int charge, double width) : ParticleType(name, mass, charge), fWidth(width) {}
+// parametric constructor
+ResonanceType::ResonanceType(std::string const& name, double mass, int charge, double width)
+    : ParticleType(name, mass, charge), fWidth(width) {}
 
-double ResonanceType::getWidth() const {
-    return fWidth;
-}
+// default constructor; explicitly defined because of const data members
+ResonanceType::ResonanceType() : ParticleType(), fWidth(0.) {}
 
+// returns the resonance width
+double ResonanceType::GetWidth() const { return fWidth; }
+
+// prints the resonance type data
 void ResonanceType::Print() const {
-    ParticleType::Print();
-    std::cout << " Width: " << std::setw(7) << fWidth << '\n';
+  ParticleType::Print();
+  std::cout << " Width: " << std::setw(7) << fWidth << '\n';
 }
 
 }  // namespace pt
