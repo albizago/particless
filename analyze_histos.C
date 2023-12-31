@@ -113,7 +113,7 @@ void analyze_histos() {
 
   // Uniform distribution function for fit
   TF1* uniform_dist = new TF1("unif", "[0]", 0, 2 * TMath::Pi());
-  uniform_dist->SetParName(0, "Normalization");
+  uniform_dist->SetParName(0, "Amplitude");
   uniform_dist->SetLineColorAlpha(kBlue, 0.75);
   uniform_dist->SetLineWidth(3);
 
@@ -134,7 +134,7 @@ void analyze_histos() {
   phi_histo->Fit(uniform_dist, "q", "", 0, 2 * TMath::Pi());
 
   std::cout << "\n AZIMUTHAL ANGLE PHI -- FIT FUNCTION\n";
-  std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
+  std::cout << "\n Parameter (Amplitude): " << uniform_dist->GetParameter(0)
             << " +- " << uniform_dist->GetParError(0);
   std::cout << "\n Chi square: " << uniform_dist->GetChisquare();
   std::cout << "\n NDF: " << uniform_dist->GetNDF();
@@ -171,7 +171,7 @@ void analyze_histos() {
   theta_histo->Fit(uniform_dist, "q", "", 0, TMath::Pi());
 
   std::cout << "\n POLAR ANGLE THETA -- FIT FUNCTION\n";
-  std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
+  std::cout << "\n Parameter (Amplitude): " << uniform_dist->GetParameter(0)
             << " +- " << uniform_dist->GetParError(0);
   std::cout << "\n Chi square: " << uniform_dist->GetChisquare();
   std::cout << "\n NDF: " << uniform_dist->GetNDF();
@@ -205,7 +205,7 @@ void analyze_histos() {
 
   TF1* exp_dist = new TF1("exp", "([0]/[1])*exp(-x/[1])", 0, 7.);
   exp_dist->SetParameters(1000, 1);
-  exp_dist->SetParName(0, "Normalization");
+  exp_dist->SetParName(0, "Amplitude");
   exp_dist->SetParName(1, "#tau");
 
   impulse_histo->Fit("exp", "q", "", 0, 7.);
@@ -215,7 +215,7 @@ void analyze_histos() {
   fit_func->SetLineWidth(2);
 
   std::cout << "\n IMPULSE -- FIT FUNCTION\n";
-  std::cout << "\n Parameter 0 (normalization): " << fit_func->GetParameter(0)
+  std::cout << "\n Parameter 0 (Amplitude): " << fit_func->GetParameter(0)
             << " +- " << fit_func->GetParError(0);
   std::cout << "\n Parameter 1 (average): " << fit_func->GetParameter(1)
             << " +- " << fit_func->GetParError(1);
@@ -281,12 +281,14 @@ void analyze_histos() {
   diff1_histo->GetYaxis()->SetTitle("Number of occurrencies");
   diff1_histo->SetLineColorAlpha(kGreen + 2, 0.35);
   diff1_histo->SetFillColorAlpha(kGreen + 2, 0.35);
+  diff1_histo->SetMarkerStyle(21);
+  diff1_histo->SetMarkerSize(0.25);
 
   // Fit gaussian distribution function
   TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
   gauss_dist->SetParameters(1200, 0.89, 0.05);
-  gauss_dist->SetParName(0, "Fit Normalization");
-  gauss_dist->SetParName(1, "Fit Mean");
+  gauss_dist->SetParName(0, "Fit Amplitude");
+  gauss_dist->SetParName(1, "Fit Mean (#mu)");
   gauss_dist->SetParName(2, "Fit #sigma");
 
   diff1_histo->Fit("gauss", "q", "", 0., 4.);
@@ -297,12 +299,18 @@ void analyze_histos() {
 
   // Add legend
   TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_diff1->AddEntry(diff1_histo, "Experimental Points", "f");
+  legend_diff1->AddEntry(diff1_histo, "Experimental Points", "fp");
   legend_diff1->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
 
   diff1_histo->Draw();
   fit_func->Draw("SAME");
   legend_diff1->Draw("SAME");
+
+  // Clone gaussian distribution from previous histogram
+  TF1* copy_gauss1 = new TF1(*gauss_dist);
+  copy_gauss1->SetLineColor(kOrange-6);
+  copy_gauss1->SetLineWidth(2);
+  copy_gauss1->SetLineStyle(2);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n ALL PARTICLES DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
@@ -340,7 +348,9 @@ void analyze_histos() {
   diff2_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   diff2_histo->GetYaxis()->SetTitle("Number of occurrencies");
   diff2_histo->SetLineColorAlpha(kGreen + 2, 0.35);
-  // diff2_histo->SetFillColorAlpha(kGreen + 2, 0.35);
+  diff2_histo->SetFillColorAlpha(kGreen + 2, 0.35);
+  diff2_histo->SetMarkerStyle(21);
+  diff2_histo->SetMarkerSize(0.25);
 
   // Fitting with gaussian distribution
 
@@ -349,6 +359,21 @@ void analyze_histos() {
   fit_func = diff2_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
   fit_func->SetLineWidth(3);
+
+  // Add legend
+  TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
+  legend_diff2->AddEntry(diff2_histo, "Experimental Points", "fp");
+  legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
+
+  diff2_histo->Draw();
+  fit_func->Draw("SAME");
+  legend_diff2->Draw("SAME");
+
+  // Clone gaussian distribution from previous histogram
+  TF1* copy_gauss2 = new TF1(*gauss_dist);
+  copy_gauss2->SetLineColor(kOrange+8);
+  copy_gauss2->SetLineWidth(2);
+  copy_gauss2->SetLineStyle(2);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
@@ -364,21 +389,6 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
-  // Add legend
-  TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_diff2->AddEntry(diff2_histo, "Experimental Points", "f");
-  legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
-
-  diff2_histo->Draw();
-  fit_func->Draw("SAME");
-  legend_diff2->Draw("SAME");
-
-  // Clone gaussian distribution from previous histogram
-  TF1* copy_gauss = new TF1(*gauss_dist);
-  copy_gauss->SetLineColor(kMagenta - 7);
-  copy_gauss->SetLineWidth(1);
-  copy_gauss->SetLineStyle(2);
-
   canva_k_star->cd(1);
 
   // Fit and draw K* decay products histogram
@@ -387,11 +397,13 @@ void analyze_histos() {
   kstar_histo->GetYaxis()->SetTitle("Number of occurrencies");
   kstar_histo->SetLineColorAlpha(kMagenta - 7, 0.35);
   kstar_histo->SetFillColorAlpha(kMagenta - 7, 0.35);
+  kstar_histo->SetMarkerStyle(21);
+  kstar_histo->SetMarkerSize(0.7);
 
   // fit gaussian function
   kstar_histo->Fit("gauss", "q", "", 0, 4.);
   fit_func = kstar_histo->GetFunction("gauss");
-  fit_func->SetLineColor(kBlack);
+  fit_func->SetLineColor(kBlue);
   fit_func->SetLineWidth(3);
 
   // Print fit function parameters and Chi square data
@@ -410,13 +422,15 @@ void analyze_histos() {
 
   // Add legend
   TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_kstar->AddEntry(kstar_histo, "Expected Points", "f");
+  legend_kstar->AddEntry(kstar_histo, "Expected Points", "fp");
   legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
-  legend_kstar->AddEntry(copy_gauss, "Gaussian fit from other dist", "l");
+  legend_kstar->AddEntry(copy_gauss1, "Gaussian fit on all/same difference histogram", "l");
+  legend_kstar->AddEntry(copy_gauss2, "Gaussian fit on #pi/K difference histogram", "l");
 
-  kstar_histo->Draw();
+  kstar_histo->Draw("e");
   fit_func->Draw("SAME");
-  copy_gauss->Draw("SAME");
+  copy_gauss1->Draw("SAME");
+  copy_gauss2->Draw("SAME");
   legend_kstar->Draw("SAME");
 
   // ---- OUTPUT FILES ----
