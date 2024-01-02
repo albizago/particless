@@ -132,6 +132,9 @@ int main(int argc, char** argv) {
 
   // Notification message
   std::cout << "Event generation and histogram filling begun...\n";
+  std::cout << "Number of events: " << n_events << '\n';
+  std::cout <<  "Number of particles generater per event: 100 \n";
+
 
   // Start benchmark
   time.Start("Event generation and histogram filling");
