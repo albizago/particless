@@ -13,8 +13,8 @@
 // function for cosmetics
 void setStyle() {
   gROOT->SetStyle("Plain");
-  gStyle->SetOptStat(1111);
-  gStyle->SetOptFit(1011);
+  gStyle->SetOptStat(1110);
+  gStyle->SetOptFit(1111);
   gStyle->SetPalette(57);
   gStyle->SetOptTitle(1);
 }
@@ -78,7 +78,7 @@ void analyze_histos() {
   // Create canva for retrieved histograms (Types, Impulse and Angles)
   TCanvas* canva_retrieved = new TCanvas(
       "canva_retrieved", "Types proportions, Impulse and Angles distributions",
-      200, 10, 600, 400);
+      200, 10, 1200, 800);
   canva_retrieved->Divide(2, 2);
 
   canva_retrieved->cd(1);
@@ -94,9 +94,17 @@ void analyze_histos() {
   type->GetXaxis()->SetBinLabel(5, "Proton");
   type->GetXaxis()->SetBinLabel(6, "Antiproton");
   type->GetXaxis()->SetBinLabel(7, "K*");
-  type->SetFillColor(kYellow);
+  type->SetMinimum(0);
+  type->SetMaximum(1.1 * type->GetMaximum());
 
-  type->Draw("HIST");
+  // Cosmetics and display settings
+  gStyle->SetOptStat(10);
+  type->SetFillColor(kYellow);
+  type->SetBarWidth(0.9);
+  type->SetBarOffset(0.05);
+  type->SetMarkerSize(1.5);
+
+  type->Draw("bar1,text0");
 
   // Call function to verify compliance with expected proportions
   analyze_particle_type(type, proportions_array);
@@ -104,10 +112,10 @@ void analyze_histos() {
   canva_retrieved->cd(3);
 
   // Uniform distribution function for fit
-  TF1* uniform_dist = new TF1("unif", "[0]", 0., 2 * TMath::Pi());
-  uniform_dist->SetParName(0, "Normalization");
-  uniform_dist->SetLineColor(kBlue);
-  uniform_dist->SetLineWidth(1);
+  TF1* uniform_dist = new TF1("unif", "[0]", 0, 2 * TMath::Pi());
+  uniform_dist->SetParName(0, "Amplitude");
+  uniform_dist->SetLineColorAlpha(kBlue, 0.75);
+  uniform_dist->SetLineWidth(3);
 
   // Retrieve and label azimuthal and polar angles histograms
   // fit uniform distribution to each and draw everything
@@ -117,13 +125,16 @@ void analyze_histos() {
   phi_histo->SetTitle("Azimuthal Angle Distribution");
   phi_histo->GetXaxis()->SetTitle("Azimuthal angle [rad]");
   phi_histo->GetYaxis()->SetTitle("Number of occurrencies");
-  phi_histo->SetLineColorAlpha(kRed, 0.35);
-  phi_histo->SetFillColorAlpha(kRed, 0.35);
+  phi_histo->SetMinimum(0.98 * phi_histo->GetMinimum());
+  phi_histo->SetMaximum(1.02 * phi_histo->GetMaximum());
+  phi_histo->SetLineColorAlpha(kRed, 0.75);
+  phi_histo->SetFillColorAlpha(kRed, 0.25);
+  phi_histo->SetFillStyle(3001);
 
-  phi_histo->Fit(uniform_dist, "q", "", 0., 2 * TMath::Pi());
+  phi_histo->Fit(uniform_dist, "q", "", 0, 2 * TMath::Pi());
 
   std::cout << "\n AZIMUTHAL ANGLE PHI -- FIT FUNCTION\n";
-  std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
+  std::cout << "\n Parameter (Amplitude): " << uniform_dist->GetParameter(0)
             << " +- " << uniform_dist->GetParError(0);
   std::cout << "\n Chi square: " << uniform_dist->GetChisquare();
   std::cout << "\n NDF: " << uniform_dist->GetNDF();
@@ -151,13 +162,16 @@ void analyze_histos() {
   theta_histo->SetTitle("Polar Angle Distribution");
   theta_histo->GetXaxis()->SetTitle("Polar angle [rad]");
   theta_histo->GetYaxis()->SetTitle("Number of occurrencies");
-  theta_histo->SetLineColorAlpha(kRed, 0.35);
-  theta_histo->SetFillColorAlpha(kRed, 0.35);
+  theta_histo->SetMinimum(0.98 * theta_histo->GetMinimum());
+  theta_histo->SetMaximum(1.02 * theta_histo->GetMaximum());
+  theta_histo->SetLineColorAlpha(kRed, 0.75);
+  theta_histo->SetFillColorAlpha(kRed, 0.25);
+  theta_histo->SetFillStyle(3001);
 
-  theta_histo->Fit(uniform_dist, "q", "", 0., TMath::Pi());
+  theta_histo->Fit(uniform_dist, "q", "", 0, TMath::Pi());
 
   std::cout << "\n POLAR ANGLE THETA -- FIT FUNCTION\n";
-  std::cout << "\n Parameter (normalization): " << uniform_dist->GetParameter(0)
+  std::cout << "\n Parameter (Amplitude): " << uniform_dist->GetParameter(0)
             << " +- " << uniform_dist->GetParError(0);
   std::cout << "\n Chi square: " << uniform_dist->GetChisquare();
   std::cout << "\n NDF: " << uniform_dist->GetNDF();
@@ -185,22 +199,23 @@ void analyze_histos() {
   impulse_histo->SetTitle("Distribution of particles' impulse");
   impulse_histo->GetXaxis()->SetTitle("Impulse [GeV/c]");
   impulse_histo->GetYaxis()->SetTitle("Number of occurrencies");
-  impulse_histo->SetLineColor(kBlue);
-  impulse_histo->SetLineColorAlpha(kBlue, 0.35);
+  impulse_histo->SetLineColorAlpha(kBlue, 0.75);
   impulse_histo->SetFillColorAlpha(kBlue, 0.35);
+  impulse_histo->SetFillStyle(3001);
 
-  TF1* exp_dist = new TF1("exp", "expo([0], [1])", 0., 7.);
-  exp_dist->SetParName(0, "Normalization");
+  TF1* exp_dist = new TF1("exp", "([0]/[1])*exp(-x/[1])", 0, 7.);
+  exp_dist->SetParameters(1000, 1);
+  exp_dist->SetParName(0, "Amplitude");
   exp_dist->SetParName(1, "#tau");
 
-  impulse_histo->Fit("exp", "q", "", 0., 7.);
+  impulse_histo->Fit("exp", "q", "", 0, 7.);
 
   TF1* fit_func = impulse_histo->GetFunction("exp");
   fit_func->SetLineColor(kRed);
-  fit_func->SetLineWidth(1);
+  fit_func->SetLineWidth(2);
 
   std::cout << "\n IMPULSE -- FIT FUNCTION\n";
-  std::cout << "\n Parameter 0 (normalization): " << fit_func->GetParameter(0)
+  std::cout << "\n Parameter 0 (Amplitude): " << fit_func->GetParameter(0)
             << " +- " << fit_func->GetParError(0);
   std::cout << "\n Parameter 1 (average): " << fit_func->GetParameter(1)
             << " +- " << fit_func->GetParError(1);
@@ -210,16 +225,17 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
 
   // Check if average is compatible with 1 GeV/c
-  (impulse_histo->GetMean() - impulse_histo->GetMeanError() < 1. &&
-   1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())
+  (fit_func->GetParameter(1) - fit_func->GetParError(1) < 1. &&
+   1. < fit_func->GetParameter(1) + fit_func->GetParError(1))
       ? std::cout << "\nExpectation confirmed \n"
-      : std::cout << "\nSomething went wrong. Visual check suggested \n";
+      : std::cout << "\nSomething went wrong: incompatible average value. "
+                     "Visual check suggested \n";
   std::cout << "\n--------------------- \n\n";
 
   // Add legend
   TLegend* legend_impulse = new TLegend(0.62, 0.20, 0.99, 0.42);
   legend_impulse->AddEntry(impulse_histo, "Data", "f");
-  legend_impulse->AddEntry(fit_func, "Uniform distribution", "l");
+  legend_impulse->AddEntry(fit_func, "Exponential distribution", "l");
 
   impulse_histo->Draw();
   fit_func->Draw("SAME");
@@ -230,7 +246,7 @@ void analyze_histos() {
   // Retrieve invariant masses histograms
 
   TCanvas* canva_k_star =
-      new TCanvas("canva_k_star", "K* Resonance Analysis", 200, 10, 600, 400);
+      new TCanvas("canva_k_star", "K* Resonance Analysis", 200, 10, 1300, 900);
   canva_k_star->Divide(1, 3);
 
   TH1D* disc_histo = (TH1D*)histos_list->FindObject("inv_mass_disc");
@@ -252,29 +268,36 @@ void analyze_histos() {
       "Difference between distribution of invariant masses of all particles of "
       "opposite charge and all particles of same charge");
 
-  diff1_histo->Add(disc_histo, conc_histo, 1., -1.);
+  diff1_histo->Add(conc_histo, -1);
+
+  diff1_histo->SetEntries(disc_histo->GetEntries() - conc_histo->GetEntries());
+
+  diff1_histo->SetMinimum(1.7 * diff1_histo->GetMinimum());
+  diff1_histo->SetMaximum(1.3 * diff1_histo->GetMaximum());
 
   diff1_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   diff1_histo->GetYaxis()->SetTitle("Number of occurrencies");
   diff1_histo->SetLineColorAlpha(kGreen + 2, 0.35);
   diff1_histo->SetFillColorAlpha(kGreen + 2, 0.35);
+  diff1_histo->SetMarkerStyle(21);
+  diff1_histo->SetMarkerSize(0.25);
 
   // Fit gaussian distribution function
   TF1* gauss_dist = new TF1("gauss", "gaus([0], [1], [2])", 0., 7.);
-  gauss_dist->SetParameters(0.5, 0.8, 0.05);
-  gauss_dist->SetParName(0, "Fit Normalization");
-  gauss_dist->SetParName(1, "Fit Mean");
+  gauss_dist->SetParameters(1200, 0.89, 0.05);
+  gauss_dist->SetParName(0, "Fit Amplitude");
+  gauss_dist->SetParName(1, "Fit Mean (#mu)");
   gauss_dist->SetParName(2, "Fit #sigma");
 
-  diff1_histo->Fit("gauss", "q", "", 0., 7.);
+  diff1_histo->Fit("gauss", "q", "", 0, 7);
 
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
-  fit_func->SetLineWidth(1);
+  fit_func->SetLineWidth(3);
 
   // Add legend
   TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_diff1->AddEntry(diff1_histo, "Experimental Points", "f");
+  legend_diff1->AddEntry(diff1_histo, "Experimental Points", "fp");
   legend_diff1->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
 
   diff1_histo->Draw();
@@ -306,20 +329,37 @@ void analyze_histos() {
       "of pions and kaons of opposite charges and of same "
       "charges");
 
-  diff2_histo->Add(disc_pk_histo, conc_pk_histo, 1., -1.);
+  diff2_histo->Add(conc_pk_histo, -1);
+
+  diff2_histo->SetEntries(disc_pk_histo->GetEntries() -
+                          conc_pk_histo->GetEntries());
+
+  diff2_histo->SetMinimum(diff1_histo->GetMinimum());
+  diff2_histo->SetMaximum(diff1_histo->GetMaximum());
 
   diff2_histo->GetXaxis()->SetTitle("Invariant mass [GeV/c^2]");
   diff2_histo->GetYaxis()->SetTitle("Number of occurrencies");
   diff2_histo->SetLineColorAlpha(kGreen + 2, 0.35);
   diff2_histo->SetFillColorAlpha(kGreen + 2, 0.35);
+  diff2_histo->SetMarkerStyle(21);
+  diff2_histo->SetMarkerSize(0.25);
 
   // Fitting with gaussian distribution
 
-  diff2_histo->Fit("gauss", "q", "", 0., 7.);
+  diff2_histo->Fit("gauss", "q", "", 0, 7);
 
   fit_func = diff2_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
-  fit_func->SetLineWidth(1);
+  fit_func->SetLineWidth(3);
+
+  // Add legend
+  TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
+  legend_diff2->AddEntry(diff2_histo, "Experimental Points", "fp");
+  legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
+
+  diff2_histo->Draw();
+  fit_func->Draw("SAME");
+  legend_diff2->Draw("SAME");
 
   // Print fit function parameters and Chi square data
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
@@ -335,15 +375,6 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
   std::cout << "\n--------------------- \n\n";
 
-  // Add legend
-  TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_diff2->AddEntry(diff2_histo, "Experimental Points", "f");
-  legend_diff2->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
-
-  diff2_histo->Draw();
-  fit_func->Draw("SAME");
-  legend_diff2->Draw("SAME");
-
   canva_k_star->cd(1);
 
   // Fit and draw K* decay products histogram
@@ -352,12 +383,14 @@ void analyze_histos() {
   kstar_histo->GetYaxis()->SetTitle("Number of occurrencies");
   kstar_histo->SetLineColorAlpha(kMagenta - 7, 0.35);
   kstar_histo->SetFillColorAlpha(kMagenta - 7, 0.35);
+  kstar_histo->SetMarkerStyle(21);
+  kstar_histo->SetMarkerSize(0.7);
 
   // fit gaussian function
-  kstar_histo->Fit("gauss", "q", "", 0., 2.);
+  kstar_histo->Fit("gauss", "q", "", 0, 4.);
   fit_func = kstar_histo->GetFunction("gauss");
-  fit_func->SetLineColor(kBlack);
-  fit_func->SetLineWidth(1);
+  fit_func->SetLineColor(kBlue);
+  fit_func->SetLineWidth(3);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n K* BENCHMARK HISTOGRAM -- GAUSSIAN FIT FUNCTION\n";
@@ -375,10 +408,10 @@ void analyze_histos() {
 
   // Add legend
   TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
-  legend_kstar->AddEntry(kstar_histo, "Expected Points", "f");
+  legend_kstar->AddEntry(kstar_histo, "Expected Points", "fp");
   legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
 
-  kstar_histo->Draw();
+  kstar_histo->Draw("e");
   fit_func->Draw("SAME");
   legend_kstar->Draw("SAME");
 

@@ -56,7 +56,7 @@ class Particle {
                               double width = 0.);
 
   // compute invariant mass of two particles
-  double InvMass(Particle& p) const;
+  double InvMass(Particle const& p) const;
 
   // simulate decay of a particle into two daughters
   int Decay2body(Particle& dau1, Particle& dau2) const;
