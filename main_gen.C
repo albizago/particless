@@ -13,9 +13,11 @@
 #include "TRandom.h"
 #include "particle.hpp"
 
-int main(int argc, char** argv) {
-  // create ROOT application object for external compilation
-  TApplication app("ROOT Application", &argc, argv);
+void main_gen() {
+  // Automatically load libraries
+  R__LOAD_LIBRARY( particleType_cxx.so )
+  R__LOAD_LIBRARY( resonanceType_cxx.so )
+  R__LOAD_LIBRARY( particle_cxx.so )
 
   std::cout << " ---- K* decay simulation ----\n\n";
 
@@ -128,6 +130,8 @@ int main(int argc, char** argv) {
   Int_t decay_idx = 0;
   // index to store decay products past the 100th position of the array
 
+  int decay_outcome = 0;
+
   // ROOT Benchmark to evaluate code performance
   TBenchmark time;
 
@@ -199,27 +203,26 @@ int main(int argc, char** argv) {
         rndm_idx = gRandom->Rndm();
 
         if (rndm_idx < 0.5) {
-          if (EventParticles[j].Decay2body(EventParticles[100 + decay_idx],
-                                           EventParticles[101 + decay_idx]) ==
-              0) {
-            EventParticles[100 + decay_idx].SetIndex("pion+");
-            EventParticles[101 + decay_idx].SetIndex("kaon-");
-          }
+          EventParticles[100 + decay_idx].SetIndex("pion+");
+          EventParticles[101 + decay_idx].SetIndex("kaon-");
+          decay_outcome = EventParticles[j].Decay2body(
+              EventParticles[100 + decay_idx], EventParticles[101 + decay_idx]);
         } else {
-          if (EventParticles[j].Decay2body(EventParticles[100 + decay_idx],
-                                           EventParticles[101 + decay_idx]) ==
-              0) {
-            EventParticles[100 + decay_idx].SetIndex("pion-");
-            EventParticles[101 + decay_idx].SetIndex("kaon+");
-          }
+          EventParticles[100 + decay_idx].SetIndex("pion-");
+          EventParticles[101 + decay_idx].SetIndex("kaon+");
+          decay_outcome = EventParticles[j].Decay2body(
+              EventParticles[100 + decay_idx], EventParticles[101 + decay_idx]);
         }
 
-        // fill invariant mass of decay products histo
-        inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
-            EventParticles[101 + decay_idx]));
+        // if decay is carried out correctly
+        if (decay_outcome == 0) {
+          // fill invariant mass of decay products histo
+          inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
+              EventParticles[101 + decay_idx]));
 
-        // move decay index forward
-        decay_idx += 2;
+          // move decay index forward
+          decay_idx += 2;
+        }
       }
 
       // fill type, energy histos
@@ -343,7 +346,5 @@ int main(int argc, char** argv) {
   std::cout << "Histos written to file '' histos.root '' " << '\n'
             << "Analyse in Root with analyze_histo.C macro\n";
 
-  // Run ROOT application
-  app.Run();
-  return 0;
+  return;
 }

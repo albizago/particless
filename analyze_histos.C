@@ -304,12 +304,6 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_diff1->Draw("SAME");
 
-  // Clone gaussian distribution from previous histogram
-  TF1* copy_gauss1 = new TF1(*gauss_dist);
-  copy_gauss1->SetLineColor(kOrange-6);
-  copy_gauss1->SetLineWidth(2);
-  copy_gauss1->SetLineStyle(2);
-
   // Print fit function parameters and Chi square data
   std::cout << "\n ALL PARTICLES DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
@@ -367,12 +361,6 @@ void analyze_histos() {
   fit_func->Draw("SAME");
   legend_diff2->Draw("SAME");
 
-  // Clone gaussian distribution from previous histogram
-  TF1* copy_gauss2 = new TF1(*gauss_dist);
-  copy_gauss2->SetLineColor(kOrange+8);
-  copy_gauss2->SetLineWidth(2);
-  copy_gauss2->SetLineStyle(2);
-
   // Print fit function parameters and Chi square data
   std::cout << "\n PIONS & KAONS DIFFERENCE -- GAUSSIAN FIT FUNCTION\n";
   std::cout << "\n Parameter 0: " << fit_func->GetParameter(0) << " +- "
@@ -422,13 +410,9 @@ void analyze_histos() {
   TLegend* legend_kstar = new TLegend(0.74, 0.16, 0.98, 0.34);
   legend_kstar->AddEntry(kstar_histo, "Expected Points", "fp");
   legend_kstar->AddEntry(fit_func, "Fitting Gaussian distribution", "l");
-  legend_kstar->AddEntry(copy_gauss1, "Gaussian fit on all/same difference histogram", "l");
-  legend_kstar->AddEntry(copy_gauss2, "Gaussian fit on #pi/K difference histogram", "l");
 
   kstar_histo->Draw("e");
   fit_func->Draw("SAME");
-  copy_gauss1->Draw("SAME");
-  copy_gauss2->Draw("SAME");
   legend_kstar->Draw("SAME");
 
   // ---- OUTPUT FILES ----
