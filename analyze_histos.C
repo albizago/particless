@@ -289,7 +289,7 @@ void analyze_histos() {
   gauss_dist->SetParName(1, "Fit Mean (#mu)");
   gauss_dist->SetParName(2, "Fit #sigma");
 
-  diff1_histo->Fit("gauss", "q", "", 0, 7);
+  diff1_histo->Fit("gauss", "q", "", 0., 4.);
 
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
@@ -346,7 +346,7 @@ void analyze_histos() {
 
   // Fitting with gaussian distribution
 
-  diff2_histo->Fit("gauss", "q", "", 0, 7);
+  diff2_histo->Fit("gauss", "q", "", 0., 4.);
 
   fit_func = diff2_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);

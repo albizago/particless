@@ -94,9 +94,9 @@ void Particle::AddParticleType(std::string const& name, double mass, int charge,
 };
 
 // compute invariant mass of two particles
-double Particle::InvMass(Particle& p) const {
-  double TotEnergy = GetEnergy() + p.GetEnergy();
-  Impulse TotImpulse = fP + p.fP;
+double Particle::InvMass(const Particle& other) const {
+  double TotEnergy = GetEnergy() + other.GetEnergy();
+  Impulse TotImpulse = fP + other.fP;
 
   // apply SR formula
   return sqrt((TotEnergy * TotEnergy) - TotImpulse.SquaredNorm());

@@ -67,49 +67,50 @@ int main(int argc, char** argv) {
 
   // Histogram containing
   TH1D* phi_histo =
-      new TH1D("phi", "Azimutal angle distribution", 1080, 0., 2 * TMath::Pi());
+      new TH1D("phi", "Azimutal angle distribution", 360, 0, 2 * TMath::Pi());
   TH1D* theta_histo =
-      new TH1D("theta", "Polar angle distribution", 540, 0., TMath::Pi());
+      new TH1D("theta", "Polar angle distribution", 180, 0, TMath::Pi());
 
   // Histogram containing particles' impulse modulus
-  TH1D* impulse_histo = new TH1D("impulse", "Modulus of impulse", 1000, 0, 7.);
+  TH1D* impulse_histo = new TH1D("impulse", "Modulus of impulse", 400, 0, 7.);
 
   // Histogram containing tranverse impulse of particles
   TH1D* transv_impulse_histo =
-      new TH1D("t_impulse", "Tranverse impulse", 1000, 0, 7.);
+      new TH1D("t_impulse", "Tranverse impulse", 400, 0, 7.);
 
   // Histogram containing energy of particles
   TH1D* energy_histo =
-      new TH1D("energy", "Energy of generated particles", 1000, 0, 7.);
+      new TH1D("energy", "Energy of generated particles", 400, 0, 7.);
 
-  // --- Method 'Sumw2()' is called on following histograms for future error calculations ---
+  // --- Method 'Sumw2()' is called on following histograms for future error
+  // calculations ---
 
   // Histogram containing invariant mass of all particles of opposite sign
   // charges
   TH1D* inv_mass_disc_histo =
       new TH1D("inv_mass_disc",
-               "Invariant mass of oppositely charged particles", 5000, 0, 7.5);
+               "Invariant mass of oppositely charged particles", 750, 0, 7.5);
   inv_mass_disc_histo->Sumw2();
 
   // Histogram containing invariant mass of all particles of same sign charges
   TH1D* inv_mass_conc_histo =
       new TH1D("inv_mass_conc",
-               "Invariant mass of identically charged particles", 5000, 0, 7.5);
+               "Invariant mass of identically charged particles", 750, 0, 7.5);
   inv_mass_conc_histo->Sumw2();
 
   // Histogram containing invariant mass of opposite charge pions and kaons
   TH1D* inv_mass_pk0_histo =
-      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 5000, 0, 7.5);
+      new TH1D("inv_mass_pk0", "Invariant mass of pi+k- / pi-k+", 750, 0, 7.5);
   inv_mass_pk0_histo->Sumw2();
 
   // Histogram containing invariant mass of same charge pions and kaons
   TH1D* inv_mass_pk1_histo =
-      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 5000, 0, 7.5);
+      new TH1D("inv_mass_pk1", "Invariant mass of pi+k+ / pi-k-", 750, 0, 7.5);
   inv_mass_pk1_histo->Sumw2();
 
   // Histogram containing invariant mass of products of k* decays
   TH1D* inv_mass_kstar_histo = new TH1D(
-      "inv_mass_kstar", "Invariant mass of products of K* decay", 5000, 0, 1.5);
+      "inv_mass_kstar", "Invariant mass of products of K* decay", 150, 0, 1.5);
   inv_mass_kstar_histo->Sumw2();
 
   // Confirmation message
@@ -127,14 +128,13 @@ int main(int argc, char** argv) {
   Int_t decay_idx = 0;
   // index to store decay products past the 100th position of the array
 
+  int decay_outcome = 0;
+
   // ROOT Benchmark to evaluate code performance
   TBenchmark time;
 
   // Notification message
   std::cout << "Event generation and histogram filling begun...\n";
-  std::cout << "Number of events: " << n_events << '\n';
-  std::cout <<  "Number of particles generater per event: 100 \n";
-
 
   // Start benchmark
   time.Start("Event generation and histogram filling");
@@ -142,14 +142,16 @@ int main(int argc, char** argv) {
   // Particle generation and histogram filling
 
   for (Int_t i = 0; i < n_events; ++i) {
+    // Each event
     decay_idx = 0;
+
     for (Int_t j = 0; j < 100; ++j) {
       // Generate angles according to uniform dist
-      phi = gRandom->Uniform(0., 2 * TMath::Pi());
-      theta = gRandom->Uniform(0., TMath::Pi());
+      phi = gRandom->Uniform(0, 2 * TMath::Pi());
+      theta = gRandom->Uniform(0, TMath::Pi());
 
       // Generate impulse modulus according to exponential dist
-      p_mod = gRandom->Exp(1.);
+      p_mod = gRandom->Exp(1);
 
       // Compute impluse vector components
       p_gen.fPx = p_mod * TMath::Sin(theta) * TMath::Cos(phi);
@@ -201,21 +203,24 @@ int main(int argc, char** argv) {
         if (rndm_idx < 0.5) {
           EventParticles[100 + decay_idx].SetIndex("pion+");
           EventParticles[101 + decay_idx].SetIndex("kaon-");
-          EventParticles[j].Decay2body(EventParticles[100 + decay_idx],
-                                       EventParticles[101 + decay_idx]);
+          decay_outcome = EventParticles[j].Decay2body(
+              EventParticles[100 + decay_idx], EventParticles[101 + decay_idx]);
         } else {
           EventParticles[100 + decay_idx].SetIndex("pion-");
           EventParticles[101 + decay_idx].SetIndex("kaon+");
-          EventParticles[j].Decay2body(EventParticles[100 + decay_idx],
-                                       EventParticles[101 + decay_idx]);
+          decay_outcome = EventParticles[j].Decay2body(
+              EventParticles[100 + decay_idx], EventParticles[101 + decay_idx]);
         }
 
-        // fill invariant mass of decay products histo
-        inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
-            EventParticles[101 + decay_idx]));
+        // if decay is carried out correctly
+        if (decay_outcome == 0) {
+          // fill invariant mass of decay products histo
+          inv_mass_kstar_histo->Fill(EventParticles[100 + decay_idx].InvMass(
+              EventParticles[101 + decay_idx]));
 
-        // move decay index forward
-        decay_idx += 2;
+          // move decay index forward
+          decay_idx += 2;
+        }
       }
 
       // fill type, energy histos
@@ -267,6 +272,9 @@ int main(int argc, char** argv) {
         }
       }
     }
+
+    // Reset array of particles
+    EventParticles.fill(pt::Particle());
   }
 
   // Stop benchmark
@@ -295,11 +303,11 @@ int main(int argc, char** argv) {
   // Canvas definition
 
   TCanvas* canva1 = new TCanvas("canva1", "Types, Angles, Energy and Impulse",
-                                200, 10, 800, 800);
+                                200, 10, 1400, 900);
   canva1->Divide(2, 3);
 
   TCanvas* canva2 =
-      new TCanvas("canva2", "Invariant Masses", 200, 10, 800, 800);
+      new TCanvas("canva2", "Invariant Masses", 200, 10, 1400, 900);
   canva2->Divide(2, 3);
 
   // Confirmation message
@@ -323,7 +331,7 @@ int main(int argc, char** argv) {
   // Confirmation message
   std::cout << "Histos drawn \n";
 
-  // Create ROOT file and write List and Array of proportions 
+  // Create ROOT file and write List and Array of proportions
 
   TFile* file = new TFile("histos.root", "RECREATE");
 
