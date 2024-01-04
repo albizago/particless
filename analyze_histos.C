@@ -225,10 +225,8 @@ void analyze_histos() {
   std::cout << "\n Probability: " << fit_func->GetProb() << '\n';
 
   // Check if average is compatible with 1 GeV/c
-  /*(impulse_histo->GetMean() - impulse_histo->GetMeanError() < 1. &&
-   1. < impulse_histo->GetMean() + impulse_histo->GetMeanError())*/
-  (fit_func->GetParameter(1) - fit_func->GetParError(1) < -1. &&
-   -1. < fit_func->GetParameter(1) + fit_func->GetParError(1))
+  (fit_func->GetParameter(1) - fit_func->GetParError(1) < 1. &&
+   1. < fit_func->GetParameter(1) + fit_func->GetParError(1))
       ? std::cout << "\nExpectation confirmed \n"
       : std::cout << "\nSomething went wrong: incompatible average value. "
                      "Visual check suggested \n";

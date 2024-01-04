@@ -13,6 +13,7 @@ class ParticleType {
   // constructors
   ParticleType(std::string const&, double, int);
   ParticleType();
+  virtual ~ParticleType() = default;
 
   // getters
   std::string const& GetName() const;
