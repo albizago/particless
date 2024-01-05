@@ -78,7 +78,7 @@ void analyze_histos() {
   // Create canva for retrieved histograms (Types, Impulse and Angles)
   TCanvas* canva_retrieved = new TCanvas(
       "canva_retrieved", "Types proportions, Impulse and Angles distributions",
-      200, 10, 1200, 800);
+      200, 10, 1400, 800);
   canva_retrieved->Divide(2, 2);
 
   canva_retrieved->cd(1);
@@ -125,7 +125,7 @@ void analyze_histos() {
   phi_histo->SetTitle("Azimuthal Angle Distribution");
   phi_histo->GetXaxis()->SetTitle("Azimuthal angle [rad]");
   phi_histo->GetYaxis()->SetTitle("Number of occurrencies");
-  phi_histo->SetMinimum(0.98 * phi_histo->GetMinimum());
+  phi_histo->SetMinimum(0.96 * phi_histo->GetMinimum());
   phi_histo->SetMaximum(1.02 * phi_histo->GetMaximum());
   phi_histo->SetLineColorAlpha(kRed, 0.75);
   phi_histo->SetFillColorAlpha(kRed, 0.25);
@@ -162,7 +162,7 @@ void analyze_histos() {
   theta_histo->SetTitle("Polar Angle Distribution");
   theta_histo->GetXaxis()->SetTitle("Polar angle [rad]");
   theta_histo->GetYaxis()->SetTitle("Number of occurrencies");
-  theta_histo->SetMinimum(0.98 * theta_histo->GetMinimum());
+  theta_histo->SetMinimum(0.96 * theta_histo->GetMinimum());
   theta_histo->SetMaximum(1.02 * theta_histo->GetMaximum());
   theta_histo->SetLineColorAlpha(kRed, 0.75);
   theta_histo->SetFillColorAlpha(kRed, 0.25);
@@ -289,11 +289,11 @@ void analyze_histos() {
   gauss_dist->SetParName(1, "Fit Mean (#mu)");
   gauss_dist->SetParName(2, "Fit #sigma");
 
-  diff1_histo->Fit("gauss", "q", "", 0., 4.);
+  diff1_histo->Fit("gauss", "q", "", 0., 5.);
 
   fit_func = diff1_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
-  fit_func->SetLineWidth(3);
+  fit_func->SetLineWidth(2);
 
   // Add legend
   TLegend* legend_diff1 = new TLegend(0.74, 0.16, 0.98, 0.34);
@@ -346,11 +346,11 @@ void analyze_histos() {
 
   // Fitting with gaussian distribution
 
-  diff2_histo->Fit("gauss", "q", "", 0., 4.);
+  diff2_histo->Fit("gauss", "q", "", 0., 5.);
 
   fit_func = diff2_histo->GetFunction("gauss");
   fit_func->SetLineColor(kRed);
-  fit_func->SetLineWidth(3);
+  fit_func->SetLineWidth(2);
 
   // Add legend
   TLegend* legend_diff2 = new TLegend(0.74, 0.16, 0.98, 0.34);
@@ -390,7 +390,7 @@ void analyze_histos() {
   kstar_histo->Fit("gauss", "q", "", 0, 4.);
   fit_func = kstar_histo->GetFunction("gauss");
   fit_func->SetLineColor(kBlue);
-  fit_func->SetLineWidth(3);
+  fit_func->SetLineWidth(2);
 
   // Print fit function parameters and Chi square data
   std::cout << "\n K* BENCHMARK HISTOGRAM -- GAUSSIAN FIT FUNCTION\n";

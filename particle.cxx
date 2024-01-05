@@ -76,13 +76,12 @@ void Particle::AddParticleType(std::string const& name, double mass, int charge,
     // add particle or resonance type, depending on width value
     if (width == 0.) {
       // pass the ownership of new ParticleType object
-      fParticleTypes[FindParticle(name)] = std::move(
-          std::unique_ptr<ParticleType>(new ParticleType(name, mass, charge)));
+      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(
+        new ParticleType(name, mass, charge)));
     } else {
       // pass the ownership of new ResonanceType object
-      fParticleTypes[FindParticle(name)] =
-          std::move(std::unique_ptr<ParticleType>(
-              new ResonanceType(name, mass, charge, width)));
+      fParticleTypes[FindParticle(name)] = std::move(std::unique_ptr<ParticleType>(
+        new ResonanceType(name, mass, charge, width)));
     }
     // increment number of current particle types
     ++fNParticleType;
@@ -187,9 +186,8 @@ void Particle::Print() const {
 const int Particle::fMaxNumParticleType = 10;
 int Particle::fNParticleType = 0;
 
-std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes =
-    std::make_unique<std::unique_ptr<ParticleType>[]>(
-        Particle::fMaxNumParticleType);
+std::unique_ptr<std::unique_ptr<ParticleType>[]> Particle::fParticleTypes = 
+  std::make_unique<std::unique_ptr<ParticleType>[]>(Particle::fMaxNumParticleType);
 
 // --------------- PRIVATE METHODS ---------------
 

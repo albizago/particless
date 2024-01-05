@@ -77,12 +77,10 @@ void main_gen() {
   TH1D* impulse_histo = new TH1D("impulse", "Modulus of impulse", 400, 0, 7.);
 
   // Histogram containing tranverse impulse of particles
-  TH1D* transv_impulse_histo =
-      new TH1D("t_impulse", "Tranverse impulse", 400, 0, 7.);
+  TH1D* transv_impulse_histo = new TH1D("t_impulse", "Tranverse impulse", 400, 0, 7.);
 
   // Histogram containing energy of particles
-  TH1D* energy_histo =
-      new TH1D("energy", "Energy of generated particles", 400, 0, 7.);
+  TH1D* energy_histo = new TH1D("energy", "Energy of generated particles", 400, 0, 7.);
 
   // --- Method 'Sumw2()' is called on following histograms for future error
   // calculations ---
@@ -111,8 +109,8 @@ void main_gen() {
   inv_mass_pk1_histo->Sumw2();
 
   // Histogram containing invariant mass of products of k* decays
-  TH1D* inv_mass_kstar_histo = new TH1D(
-      "inv_mass_kstar", "Invariant mass of products of K* decay", 150, 0, 1.5);
+  TH1D* inv_mass_kstar_histo = 
+      new TH1D("inv_mass_kstar", "Invariant mass of products of K* decay", 150, 0, 1.5);
   inv_mass_kstar_histo->Sumw2();
 
   // Confirmation message
@@ -244,13 +242,11 @@ void main_gen() {
                EventParticles[b].GetIndex() == 2) ||
               (EventParticles[a].GetIndex() == 2 &&
                EventParticles[b].GetIndex() == 1)) {
-            inv_mass_pk0_histo->Fill(
-                EventParticles[a].InvMass(EventParticles[b]));
+            inv_mass_pk0_histo->Fill(EventParticles[a].InvMass(EventParticles[b]));
           }
 
           // Fill histo of invariant mass of opposite sign charges
-          inv_mass_disc_histo->Fill(
-              EventParticles[a].InvMass(EventParticles[b]));
+          inv_mass_disc_histo->Fill(EventParticles[a].InvMass(EventParticles[b]));
 
         } else if (EventParticles[a].GetCharge() *
                        EventParticles[b].GetCharge() >
@@ -264,13 +260,11 @@ void main_gen() {
               (EventParticles[a].GetIndex() == 3 &&
                EventParticles[b].GetIndex() == 1)) {
             // Fill histo of pions and kaons with same charges
-            inv_mass_pk1_histo->Fill(
-                EventParticles[a].InvMass(EventParticles[b]));
+            inv_mass_pk1_histo->Fill(EventParticles[a].InvMass(EventParticles[b]));
           }
 
           // Fill histo of invariant mass of same sign charges
-          inv_mass_conc_histo->Fill(
-              EventParticles[a].InvMass(EventParticles[b]));
+          inv_mass_conc_histo->Fill(EventParticles[a].InvMass(EventParticles[b]));
         }
       }
     }
