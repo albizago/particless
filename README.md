@@ -50,7 +50,7 @@ To compile and run the program you have two ways...
     user@user:~$ analyze_histos() 
   ```
 
-  Last but not least, the program has been developed by Matteo Mirabelli, Riccardo Pagnoni, Andrea Maria Varisano and
-  Alberto Zaghini for _Laboratiorio di Elettromagnetismo e Ottica, OOP and Root_ module.
-  To get more information about the project, please read the report.
+Last but not least, the program has been developed by Matteo Mirabelli, Riccardo Pagnoni, Andrea Maria Varisano and
+Alberto Zaghini for _Laboratiorio di Elettromagnetismo e Ottica, OOP and Root_ module.
+To get more information about the project, please read the report.
 
