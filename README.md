@@ -6,7 +6,7 @@ the last one rapidly decays in equal proportions into a positive kaon and a nega
 
 The aim of the program is to detect the K* decay from the distributions of invariant masses of all particles. 
 In particular, since the decay of K* produces pions and kaons of opposite charge, by analysing the distribution of invariant masses 
-of all possible couples of particles with same charge and the distribution of the distribution of invariant masses of all possible couples 
+of all possible couples of particles with same charge and the distribution of invariant masses of all possible couples 
 of particles with opposite charge, one can subtract the second from the first one and retrieve the distribution of invariant masses 
 the distribution of invariant masses of all couples of particles generated  by the decay.
 The same reasoning is repeated considering only pions and kaons in order to get more precise data.
@@ -18,14 +18,14 @@ according to uniform distributions.
 
 `analize_histo.C`, instead, is a ROOT macro that analyses the data acquired, prints statistics on terminal and draws useful histograms and fits. This macro must be run after after the simulation has been completed.
 
-This project relies on _ROOT Data Analysis Framework_ developed by CERN. You need to install it in order to execute the simulation and the analysis macro.
+This project relies on _ROOT Data Analysis Framework_ developed by CERN. Installing root is required in order to execute the simulation and the analysis macro.
 Code is written in `C++` and uses root libraries to create histograms and analyze data.
 
 To get more information about the project, please read the report `relazione.pdf`.
 
 # Compilation
 
-The program can be compiled in two different ways. You can either compile it _externally_ using `gcc` compiler, or _internally_ in the `ROOT environment`, which is recommended to make the program faster.  
+The program can be compiled in two different ways. It can be done either _externally_ using `gcc` compiler, or _internally_ in the `ROOT environment`, which is recommended to make the program faster.  
 Type the following commands:
 
 * External compilation
